@@ -63,14 +63,14 @@ import {
 namespace CommandIDs {
   export const get = 'server:get-file';
   export const openClassic = 'jupyterlab-classic:open';
-  export const open = "variableinspector:open";
+  export const open = "autodoc-panel:open";
 }
 
 /**
  * A service providing variable introspection.
  */
 const variableinspector: JupyterFrontEndPlugin<IVariableInspectorManager> = {
-    id: "jupyterlab-extension:variableinspector",
+    id: "jupyterlab-extension:autodoc-panel",
     requires: [ICommandPalette, ILayoutRestorer, ILabShell],
     provides: IVariableInspectorManager,
     autoStart: true,
@@ -78,10 +78,10 @@ const variableinspector: JupyterFrontEndPlugin<IVariableInspectorManager> = {
         
         
         const manager = new VariableInspectorManager();
-        const category = "Variable Inspector";
+        const category = "Autodoc Panel";
         const command = CommandIDs.open;
-        const label = "Open Variable Inspector";
-        const namespace = "variableinspector";
+        const label = "Open Autodoc Panel";
+        const namespace = "autodoc-panel";
         const tracker = new WidgetTracker<VariableInspectorPanel>( { namespace } );
         
         
@@ -91,8 +91,8 @@ const variableinspector: JupyterFrontEndPlugin<IVariableInspectorManager> = {
         function newPanel(): VariableInspectorPanel {
             const panel = new VariableInspectorPanel();
             
-            panel.id = "jp-variableinspector";
-            panel.title.label = "Variable Inspector";
+            panel.id = "jp-autodoc-panel";
+            panel.title.label = "Autodoc Panel";
             panel.title.closable = true;
             panel.disposed.connect(() => {
                 if ( manager.panel === panel ) {
@@ -110,7 +110,7 @@ const variableinspector: JupyterFrontEndPlugin<IVariableInspectorManager> = {
         restorer.restore( tracker, {
             command,
             args: () => null,
-            name: () => "variableinspector"
+            name: () => "autodoc-panel"
         } );
         
         // Add command to palette
@@ -270,7 +270,7 @@ const extension: JupyterFrontEndPlugin<void> = {
  * An extension that registers notebooks for variable inspection.
  */
 const notebooks: JupyterFrontEndPlugin<void> = {
-  id: "jupyterlab-extension:variableinspector:notebooks",
+  id: "jupyterlab-extension:autodoc-panel:notebooks",
   requires: [IVariableInspectorManager, INotebookTracker , ILabShell],
   autoStart: true,
   activate: (app: JupyterFrontEnd, manager: VariableInspectorManager, notebooks: INotebookTracker, labShell: ILabShell ): void => {

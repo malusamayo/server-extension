@@ -357,6 +357,7 @@ export
         }
     }
 
+
     protected buildTable(content:any, markers: any) {
         let row: HTMLTableRowElement;
         let cell: HTMLTableDataCellElement;
@@ -375,15 +376,7 @@ export
             } else if (i == 1) {
                 cell.innerHTML = "range";
             }
-            for (let [j, col] of columns.entries()) {
-                cell = row.insertCell(j + 1);
-                if (typeof content[col][i] == "string") 
-                    cell.innerHTML = escapeHTML(content[col][i]);
-                else
-                    cell.innerHTML = escapeHTML(JSON.stringify(content[col][i]));
-                if (col.endsWith("[auto]"))
-                    cell.innerHTML = `<b>${cell.innerHTML}</b>`;
-            }
+            Private.read_row(row, content, columns, i);
         }
 
         // check markers
@@ -402,15 +395,7 @@ export
                 cell = row.insertCell(0);
                 cell.innerHTML = `<button class="small-btn"><i class="fa fa-plus"> ${bounds[i+1]-bounds[i]}</i></button>`;
                 // initialize
-                for (let [j, col] of columns.entries()) {
-                    cell = row.insertCell(j + 1);
-                    if (typeof content[col][bounds[i]] == "string") 
-                        cell.innerHTML = escapeHTML(content[col][bounds[i]]);
-                    else
-                        cell.innerHTML = escapeHTML(JSON.stringify(content[col][bounds[i]]));
-                    if (col.endsWith("[auto]"))
-                        cell.innerHTML = `<b>${cell.innerHTML}</b>`;
-                }
+                Private.read_row(row, content, columns, bounds[i]);
 
                 row.title = `[Size ${bounds[i+1]-bounds[i]}], Path: ${paths[i]}, click to show more examples`;
                 row.addEventListener("click", function(this) {
@@ -421,15 +406,7 @@ export
                     }
                     let new_row = df_table.insertRow(this.rowIndex + 1);
                     cell = new_row.insertCell(0);
-                    for (let [j, col] of columns.entries()) {
-                        cell = new_row.insertCell(j+1);
-                        if (typeof content[col][cur_idx] == "string") 
-                            cell.innerHTML = escapeHTML(content[col][cur_idx]);
-                        else
-                            cell.innerHTML = escapeHTML(JSON.stringify(content[col][cur_idx]));
-                        if (col.endsWith("[auto]"))
-                            cell.innerHTML = `<b>${cell.innerHTML}</b>`;
-                    }
+                    Private.read_row(new_row, content, columns, cur_idx);
                     this.id = `${cur_idx}:${bound_idx}`;
                 });
             }
@@ -439,15 +416,8 @@ export
             row = df_table.tFoot.insertRow();
             cell = row.insertCell(0);
             cell.innerHTML = String(i - 2);
-            for (let [j, col] of columns.entries()) {
-                cell = row.insertCell(j + 1);
-                if (typeof content[col][i] == "string") 
-                    cell.innerHTML = escapeHTML(content[col][i]);
-                else
-                    cell.innerHTML = escapeHTML(JSON.stringify(content[col][i]));
-                if (col.endsWith("[auto]"))
-                    cell.innerHTML = `<b>${cell.innerHTML}</b>`;
-            }
+            Private.read_row(row, content, columns, i);
+
             df_table.title = `click to show more examples`;
             df_table.id = String(initlen - 1) + ":" + String(maxlen)
             df_table.addEventListener("click", function(this) {
@@ -459,15 +429,8 @@ export
                 let new_row = df_table.insertRow();
                 cell = new_row.insertCell(0);
                 cell.innerHTML = String(cur_idx - 2);
-                for (let [j, col] of columns.entries()) {
-                    cell = new_row.insertCell(j+1);
-                    if (typeof content[col][cur_idx] == "string") 
-                        cell.innerHTML = escapeHTML(content[col][cur_idx]);
-                    else
-                        cell.innerHTML = escapeHTML(JSON.stringify(content[col][cur_idx]));
-                    if (col.endsWith("[auto]"))
-                        cell.innerHTML = `<b>${cell.innerHTML}</b>`;
-                }
+                Private.read_row(new_row, content, columns, cur_idx);
+                
                 this.id = `${cur_idx}:${bound_idx}`;
             });
         }
@@ -507,6 +470,22 @@ export
 
 
 namespace Private {
+
+    export 
+        function read_row(row: HTMLTableRowElement, content: any, columns: string[], idx: number) {
+        let cell: HTMLTableDataCellElement;
+        for (let [j, col] of columns.entries()) {
+            cell = row.insertCell(j + 1);
+            if (typeof content[col][idx] == "string") 
+                cell.innerHTML = escapeHTML(content[col][idx]);
+            else
+                cell.innerHTML = escapeHTML(JSON.stringify(content[col][idx]));
+            if (col.endsWith("-[auto]"))
+                cell.innerHTML = `<s>${cell.innerHTML}</s>`;
+            else if (col.endsWith("[auto]"))
+                cell.innerHTML = `<b>${cell.innerHTML}</b>`;
+        }
+    }
 
     export
         function createTable(columns: any): HTMLTableElement {

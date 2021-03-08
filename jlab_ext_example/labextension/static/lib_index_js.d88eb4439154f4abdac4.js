@@ -367,30 +367,30 @@ var CommandIDs;
 (function (CommandIDs) {
     CommandIDs.get = 'server:get-file';
     CommandIDs.openClassic = 'jupyterlab-classic:open';
-    CommandIDs.open = "variableinspector:open";
+    CommandIDs.open = "autodoc-panel:open";
 })(CommandIDs || (CommandIDs = {}));
 /**
  * A service providing variable introspection.
  */
 const variableinspector = {
-    id: "jupyterlab-extension:variableinspector",
+    id: "jupyterlab-extension:autodoc-panel",
     requires: [_jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1__.ICommandPalette, _jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__.ILayoutRestorer, _jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__.ILabShell],
     provides: _manager__WEBPACK_IMPORTED_MODULE_7__.IVariableInspectorManager,
     autoStart: true,
     activate: (app, palette, restorer, labShell) => {
         const manager = new _manager__WEBPACK_IMPORTED_MODULE_7__.VariableInspectorManager();
-        const category = "Variable Inspector";
+        const category = "Autodoc Panel";
         const command = CommandIDs.open;
-        const label = "Open Variable Inspector";
-        const namespace = "variableinspector";
+        const label = "Open Autodoc Panel";
+        const namespace = "autodoc-panel";
         const tracker = new _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1__.WidgetTracker({ namespace });
         /**
          * Create and track a new inspector.
          */
         function newPanel() {
             const panel = new _variableinspector__WEBPACK_IMPORTED_MODULE_8__.VariableInspectorPanel();
-            panel.id = "jp-variableinspector";
-            panel.title.label = "Variable Inspector";
+            panel.id = "jp-autodoc-panel";
+            panel.title.label = "Autodoc Panel";
             panel.title.closable = true;
             panel.disposed.connect(() => {
                 if (manager.panel === panel) {
@@ -405,7 +405,7 @@ const variableinspector = {
         restorer.restore(tracker, {
             command,
             args: () => null,
-            name: () => "variableinspector"
+            name: () => "autodoc-panel"
         });
         // Add command to palette
         app.commands.addCommand(command, {
@@ -534,7 +534,7 @@ const extension = {
  * An extension that registers notebooks for variable inspection.
  */
 const notebooks = {
-    id: "jupyterlab-extension:variableinspector:notebooks",
+    id: "jupyterlab-extension:autodoc-panel:notebooks",
     requires: [_manager__WEBPACK_IMPORTED_MODULE_7__.IVariableInspectorManager, _jupyterlab_notebook__WEBPACK_IMPORTED_MODULE_5__.INotebookTracker, _jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__.ILabShell],
     autoStart: true,
     activate: (app, manager, notebooks, labShell) => {
@@ -1423,15 +1423,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
             else if (i == 1) {
                 cell.innerHTML = "range";
             }
-            for (let [j, col] of columns.entries()) {
-                cell = row.insertCell(j + 1);
-                if (typeof content[col][i] == "string")
-                    cell.innerHTML = escapeHTML(content[col][i]);
-                else
-                    cell.innerHTML = escapeHTML(JSON.stringify(content[col][i]));
-                if (col.endsWith("[auto]"))
-                    cell.innerHTML = `<b>${cell.innerHTML}</b>`;
-            }
+            Private.read_row(row, content, columns, i);
         }
         // check markers
         if (Object.keys(markers).length > 0) {
@@ -1449,15 +1441,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                 cell = row.insertCell(0);
                 cell.innerHTML = `<button class="small-btn"><i class="fa fa-plus"> ${bounds[i + 1] - bounds[i]}</i></button>`;
                 // initialize
-                for (let [j, col] of columns.entries()) {
-                    cell = row.insertCell(j + 1);
-                    if (typeof content[col][bounds[i]] == "string")
-                        cell.innerHTML = escapeHTML(content[col][bounds[i]]);
-                    else
-                        cell.innerHTML = escapeHTML(JSON.stringify(content[col][bounds[i]]));
-                    if (col.endsWith("[auto]"))
-                        cell.innerHTML = `<b>${cell.innerHTML}</b>`;
-                }
+                Private.read_row(row, content, columns, bounds[i]);
                 row.title = `[Size ${bounds[i + 1] - bounds[i]}], Path: ${paths[i]}, click to show more examples`;
                 row.addEventListener("click", function () {
                     let [cur_idx, bound_idx] = this.id.split(":").map(Number);
@@ -1467,15 +1451,18 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                     }
                     let new_row = df_table.insertRow(this.rowIndex + 1);
                     cell = new_row.insertCell(0);
-                    for (let [j, col] of columns.entries()) {
-                        cell = new_row.insertCell(j + 1);
-                        if (typeof content[col][cur_idx] == "string")
-                            cell.innerHTML = escapeHTML(content[col][cur_idx]);
-                        else
-                            cell.innerHTML = escapeHTML(JSON.stringify(content[col][cur_idx]));
-                        if (col.endsWith("[auto]"))
-                            cell.innerHTML = `<b>${cell.innerHTML}</b>`;
-                    }
+                    Private.read_row(new_row, content, columns, cur_idx);
+                    // for (let [j, col] of columns.entries()) {
+                    //     cell = new_row.insertCell(j+1);
+                    //     if (typeof content[col][cur_idx] == "string") 
+                    //         cell.innerHTML = escapeHTML(content[col][cur_idx]);
+                    //     else
+                    //         cell.innerHTML = escapeHTML(JSON.stringify(content[col][cur_idx]));
+                    //     if (col.endsWith("-[auto]"))
+                    //         cell.innerHTML = `<s>${cell.innerHTML}</s>`;
+                    //     else if (col.endsWith("[auto]"))
+                    //         cell.innerHTML = `<b>${cell.innerHTML}</b>`;
+                    // }
                     this.id = `${cur_idx}:${bound_idx}`;
                 });
             }
@@ -1486,15 +1473,18 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                 row = df_table.tFoot.insertRow();
                 cell = row.insertCell(0);
                 cell.innerHTML = String(i - 2);
-                for (let [j, col] of columns.entries()) {
-                    cell = row.insertCell(j + 1);
-                    if (typeof content[col][i] == "string")
-                        cell.innerHTML = escapeHTML(content[col][i]);
-                    else
-                        cell.innerHTML = escapeHTML(JSON.stringify(content[col][i]));
-                    if (col.endsWith("[auto]"))
-                        cell.innerHTML = `<b>${cell.innerHTML}</b>`;
-                }
+                Private.read_row(row, content, columns, i);
+                // for (let [j, col] of columns.entries()) {
+                //     cell = row.insertCell(j + 1);
+                //     if (typeof content[col][i] == "string") 
+                //         cell.innerHTML = escapeHTML(content[col][i]);
+                //     else
+                //         cell.innerHTML = escapeHTML(JSON.stringify(content[col][i]));
+                //     if (col.endsWith("-[auto]"))
+                //         cell.innerHTML = `<s>${cell.innerHTML}</s>`;
+                //     else if (col.endsWith("[auto]"))
+                //         cell.innerHTML = `<b>${cell.innerHTML}</b>`;
+                // }
                 df_table.title = `click to show more examples`;
                 df_table.id = String(initlen - 1) + ":" + String(maxlen);
                 df_table.addEventListener("click", function () {
@@ -1506,15 +1496,18 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                     let new_row = df_table.insertRow();
                     cell = new_row.insertCell(0);
                     cell.innerHTML = String(cur_idx - 2);
-                    for (let [j, col] of columns.entries()) {
-                        cell = new_row.insertCell(j + 1);
-                        if (typeof content[col][cur_idx] == "string")
-                            cell.innerHTML = escapeHTML(content[col][cur_idx]);
-                        else
-                            cell.innerHTML = escapeHTML(JSON.stringify(content[col][cur_idx]));
-                        if (col.endsWith("[auto]"))
-                            cell.innerHTML = `<b>${cell.innerHTML}</b>`;
-                    }
+                    Private.read_row(new_row, content, columns, cur_idx);
+                    // for (let [j, col] of columns.entries()) {
+                    //     cell = new_row.insertCell(j+1);
+                    //     if (typeof content[col][cur_idx] == "string") 
+                    //         cell.innerHTML = escapeHTML(content[col][cur_idx]);
+                    //     else
+                    //         cell.innerHTML = escapeHTML(JSON.stringify(content[col][cur_idx]));
+                    //     if (col.endsWith("-[auto]"))
+                    //         cell.innerHTML = `<s>${cell.innerHTML}</s>`;
+                    //     else if (col.endsWith("[auto]"))
+                    //         cell.innerHTML = `<b>${cell.innerHTML}</b>`;
+                    // }
                     this.id = `${cur_idx}:${bound_idx}`;
                 });
             }
@@ -1530,6 +1523,12 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
         cell.innerHTML = item[1].type; // should escape HTML chars
         cell = row.insertCell(2);
         cell.innerHTML = String(item[1].value);
+        if (item[1].type.startsWith("DataFrame")) {
+            cell = row.insertCell(3);
+            cell.innerHTML = String(item[1].shape);
+            // cell = row.insertCell( 4 );
+            // cell.innerHTML = highlightHTML(item[1].hint);
+        }
     }
     /**
      * Handle source disposed signals.
@@ -1540,6 +1539,21 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
 }
 var Private;
 (function (Private) {
+    function read_row(row, content, columns, idx) {
+        let cell;
+        for (let [j, col] of columns.entries()) {
+            cell = row.insertCell(j + 1);
+            if (typeof content[col][idx] == "string")
+                cell.innerHTML = escapeHTML(content[col][idx]);
+            else
+                cell.innerHTML = escapeHTML(JSON.stringify(content[col][idx]));
+            if (col.endsWith("-[auto]"))
+                cell.innerHTML = `<s>${cell.innerHTML}</s>`;
+            else if (col.endsWith("[auto]"))
+                cell.innerHTML = `<b>${cell.innerHTML}</b>`;
+        }
+    }
+    Private.read_row = read_row;
     function createTable(columns) {
         let table = document.createElement("table");
         table.id = columns[0].slice(0, -1);
@@ -1579,4 +1593,4 @@ var Private;
 /***/ })
 
 }]);
-//# sourceMappingURL=lib_index_js.b3e6d097c5898614e83b.js.map
+//# sourceMappingURL=lib_index_js.d88eb4439154f4abdac4.js.map
