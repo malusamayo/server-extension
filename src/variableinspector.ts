@@ -260,8 +260,8 @@ export
                 let raw_data = data.table[flow];
                 let markers = data.partition[flow];
 
-                let table = this.buildTable(raw_data, markers);
-                flow_title.appendChild(table as HTMLElement);                
+                let df_table = this.buildTable(raw_data, markers);
+                flow_title.appendChild(df_table as HTMLElement);      
             }
         }
                    
@@ -279,10 +279,8 @@ export
             this._output_table.tFoot.className = TABLE_BODY_CLASS;
             _output_title.appendChild( this._output_table as HTMLElement );
             Object.entries(data.output).forEach(item => this.processItem(item, this._output_table) );
-            // this.transform_tables.forEach(x => transform_title.appendChild(x));
         }
 
-        // new codes  
 
         // Object.entries(example).forEach(cell => {
         //     if(Number(cell[0]) != idx)
@@ -358,6 +356,8 @@ export
     protected buildTable(content:any, markers: any) {
         let row: HTMLTableRowElement;
         let cell: HTMLTableDataCellElement;
+        let button = Private.createSmallButton("fa fa-plus");
+
         let columns = Object.keys(content);
         let df_table = Private.createTable([''].concat(columns));
         df_table.className = TABLE_CLASS;
@@ -421,14 +421,14 @@ export
             // draw first k rows
             let initlen = Math.min(7, maxlen);
             for (let i = 2; i < initlen; i++) {
-            row = df_table.tFoot.insertRow();
-            cell = row.insertCell(0);
-            cell.innerHTML = String(i - 2);
-            Private.read_row(row, content, columns, i);
-
-            df_table.title = `click to show more examples`;
-            df_table.id = String(initlen - 1) + ":" + String(maxlen)
-            df_table.addEventListener("click", function(this) {
+                row = df_table.tFoot.insertRow();
+                cell = row.insertCell(0);
+                cell.innerHTML = String(i - 2);
+                Private.read_row(row, content, columns, i);
+            }
+            button.title = `click to show more examples`;
+            button.id = String(initlen - 1) + ":" + String(maxlen)
+            button.addEventListener("click", function(this) {
                 let [cur_idx, bound_idx] = this.id.split(":").map(Number);
                 cur_idx++;
                 if (cur_idx >= bound_idx) {
@@ -440,8 +440,8 @@ export
                 Private.read_row(new_row, content, columns, cur_idx);
                 
                 this.id = `${cur_idx}:${bound_idx}`;
-            });
-        }
+            }); 
+            (<HTMLTableRowElement> df_table.tHead.children[0]).cells[0].appendChild(button);
 
         }
 
@@ -488,10 +488,19 @@ namespace Private {
                 cell.innerHTML = escapeHTML(content[col][idx]);
             else
                 cell.innerHTML = escapeHTML(JSON.stringify(content[col][idx]));
-            if (col.endsWith("-[auto]"))
+            if (col.endsWith("-[auto]")) {
                 cell.innerHTML = `<s>${cell.innerHTML}</s>`;
-            else if (col.endsWith("[auto]"))
+                cell.addEventListener("click", function(this) {
+                    if (this.innerHTML.startsWith('<s>')) {
+                        this.innerHTML = this.innerHTML.slice(3,-4);
+                    } else {
+                        this.innerHTML = `<s>${this.innerHTML}</s>`;
+                    }
+                });
+            }
+            else if (col.endsWith("[auto]")) {
                 cell.innerHTML = `<b>${cell.innerHTML}</b>`;
+            }
         }
     }
 
@@ -512,15 +521,24 @@ namespace Private {
                 cell1.innerHTML = col;
             if (col.endsWith("-")) {
                 let button = createSmallButton("fas fa-minus");
+                button.title = "removed column";
                 cell1.appendChild(button);
-                
             }
-            else if (col.endsWith("+"))
-                cell1.appendChild(createSmallButton("fas fa-plus"));
-            else if (col.endsWith("*"))
-                cell1.appendChild(createSmallButton("fas fa-star-of-life"));
-            else if (col.endsWith(">"))
-                cell1.appendChild(createSmallButton("fas fa-eye"));               
+            else if (col.endsWith("+")) {
+                let button = createSmallButton("fas fa-plus");
+                button.title = "added column";
+                cell1.appendChild(button);
+            }
+            else if (col.endsWith("*")) {
+                let button = createSmallButton("fas fa-star-of-life");
+                button.title = "changed column";
+                cell1.appendChild(button);
+            }
+            else if (col.endsWith(">")) {
+                let button = createSmallButton("fas fa-eye");
+                button.title = "read column";
+                cell1.appendChild(button);
+            }            
         }
         return table;
     }

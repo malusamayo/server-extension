@@ -1316,8 +1316,8 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                 // generate table for each flow
                 let raw_data = data.table[flow];
                 let markers = data.partition[flow];
-                let table = this.buildTable(raw_data, markers);
-                flow_title.appendChild(table);
+                let df_table = this.buildTable(raw_data, markers);
+                flow_title.appendChild(df_table);
             }
         }
         if (Object.keys(data.input).length > 0) {
@@ -1333,9 +1333,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
             this._output_table.tFoot.className = TABLE_BODY_CLASS;
             _output_title.appendChild(this._output_table);
             Object.entries(data.output).forEach(item => this.processItem(item, this._output_table));
-            // this.transform_tables.forEach(x => transform_title.appendChild(x));
         }
-        // new codes  
         // Object.entries(example).forEach(cell => {
         //     if(Number(cell[0]) != idx)
         //         return;
@@ -1406,6 +1404,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
     buildTable(content, markers) {
         let row;
         let cell;
+        let button = Private.createSmallButton("fa fa-plus");
         let columns = Object.keys(content);
         let df_table = Private.createTable([''].concat(columns));
         df_table.className = TABLE_CLASS;
@@ -1424,13 +1423,13 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
             }
             Private.read_row(row, content, columns, i);
         }
-        let initlen = Math.min(5, maxlen);
-        for (let i = 2; i < initlen; i++) {
-            row = df_table.tFoot.insertRow();
-            cell = row.insertCell(0);
-            cell.innerHTML = String(i - 2);
-            Private.read_row(row, content, columns, i);
-        }
+        // let initlen = Math.min(5, maxlen);
+        // for (let i = 2; i < initlen; i++) {
+        //     row = df_table.tFoot.insertRow();
+        //     cell = row.insertCell(0);
+        //     cell.innerHTML = String(i - 2);
+        //     Private.read_row(row, content, columns, i);
+        // }
         // check markers
         if (Object.keys(markers).length > 0) {
             let paths = [];
@@ -1467,25 +1466,26 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
             // draw first k rows
             let initlen = Math.min(7, maxlen);
             for (let i = 2; i < initlen; i++) {
-                // row = df_table.tFoot.insertRow();
-                // cell = row.insertCell(0);
-                // cell.innerHTML = String(i - 2);
-                // Private.read_row(row, content, columns, i);
-                df_table.title = `click to show more examples`;
-                df_table.id = String(initlen - 1) + ":" + String(maxlen);
-                df_table.addEventListener("click", function () {
-                    let [cur_idx, bound_idx] = this.id.split(":").map(Number);
-                    cur_idx++;
-                    if (cur_idx >= bound_idx) {
-                        return;
-                    }
-                    let new_row = df_table.insertRow();
-                    cell = new_row.insertCell(0);
-                    cell.innerHTML = String(cur_idx - 2);
-                    Private.read_row(new_row, content, columns, cur_idx);
-                    this.id = `${cur_idx}:${bound_idx}`;
-                });
+                row = df_table.tFoot.insertRow();
+                cell = row.insertCell(0);
+                cell.innerHTML = String(i - 2);
+                Private.read_row(row, content, columns, i);
             }
+            button.title = `click to show more examples`;
+            button.id = String(initlen - 1) + ":" + String(maxlen);
+            button.addEventListener("click", function () {
+                let [cur_idx, bound_idx] = this.id.split(":").map(Number);
+                cur_idx++;
+                if (cur_idx >= bound_idx) {
+                    return;
+                }
+                let new_row = df_table.insertRow();
+                cell = new_row.insertCell(0);
+                cell.innerHTML = String(cur_idx - 2);
+                Private.read_row(new_row, content, columns, cur_idx);
+                this.id = `${cur_idx}:${bound_idx}`;
+            });
+            df_table.tHead.children[0].cells[0].appendChild(button);
         }
         return df_table;
     }
@@ -1522,10 +1522,20 @@ var Private;
                 cell.innerHTML = escapeHTML(content[col][idx]);
             else
                 cell.innerHTML = escapeHTML(JSON.stringify(content[col][idx]));
-            if (col.endsWith("-[auto]"))
+            if (col.endsWith("-[auto]")) {
                 cell.innerHTML = `<s>${cell.innerHTML}</s>`;
-            else if (col.endsWith("[auto]"))
+                cell.addEventListener("click", function () {
+                    if (this.innerHTML.startsWith('<s>')) {
+                        this.innerHTML = this.innerHTML.slice(3, -4);
+                    }
+                    else {
+                        this.innerHTML = `<s>${this.innerHTML}</s>`;
+                    }
+                });
+            }
+            else if (col.endsWith("[auto]")) {
                 cell.innerHTML = `<b>${cell.innerHTML}</b>`;
+            }
         }
     }
     Private.read_row = read_row;
@@ -1543,15 +1553,26 @@ var Private;
             }
             else
                 cell1.innerHTML = col;
-            if (col.endsWith("-"))
-                // col = col + createSmallButton("fas fa-minus").innerHTML;
-                cell1.appendChild(createSmallButton("fas fa-minus"));
-            else if (col.endsWith("+"))
-                cell1.appendChild(createSmallButton("fas fa-plus"));
-            else if (col.endsWith("*"))
-                cell1.appendChild(createSmallButton("fas fa-star-of-life"));
-            else if (col.endsWith(">"))
-                cell1.appendChild(createSmallButton("fas fa-eye"));
+            if (col.endsWith("-")) {
+                let button = createSmallButton("fas fa-minus");
+                button.title = "removed column";
+                cell1.appendChild(button);
+            }
+            else if (col.endsWith("+")) {
+                let button = createSmallButton("fas fa-plus");
+                button.title = "added column";
+                cell1.appendChild(button);
+            }
+            else if (col.endsWith("*")) {
+                let button = createSmallButton("fas fa-star-of-life");
+                button.title = "changed column";
+                cell1.appendChild(button);
+            }
+            else if (col.endsWith(">")) {
+                let button = createSmallButton("fas fa-eye");
+                button.title = "read column";
+                cell1.appendChild(button);
+            }
         }
         return table;
     }
@@ -1590,4 +1611,4 @@ var Private;
 /***/ })
 
 }]);
-//# sourceMappingURL=lib_index_js.373e9eb28e81056d2031.js.map
+//# sourceMappingURL=lib_index_js.a22bcbce30bd0b2f8e07.js.map
