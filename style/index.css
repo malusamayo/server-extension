@@ -18,13 +18,9 @@
     padding: 8px;
   }
   
-  .jp-VarInspector-table tr:nth-child(even) {
-    background-color: var(--jp-layout-color1);
-  }
-  
   .jp-VarInspector-content tr:hover {
     background-color: var(--jp-layout-color2);
-    cursor: pointer;
+    cursor: default;
   }
   
   .jp-VarInspector-table thead {
@@ -82,5 +78,10 @@
     color: black; /* White text */
     font-size: 12px; /* Set a font size */
     cursor: pointer; /* Mouse pointer on hover */
+  }
+
+    /* Darker background on mouse-over */
+  .small-btn :hover {
+    background-color: coral;
   }
   
