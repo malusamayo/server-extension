@@ -175,13 +175,14 @@ export
     protected add_button(button:HTMLElement, title:HTMLElement, data:any) {
         let summary_title = this.titles.get("SUMMARY");
         summary_title.appendChild(button);
+
+        // create text after button
         let text:HTMLElement;
-        // if (title == this.titles.get("TRANSFORMS"))
-        //     text = Private.createText(
-        //         Object.entries(data).map(item => item[0]+": "+item[1]).join(", "), "tomato");
-        // else  
-        text= Private.createText(
-            Object.entries(data).map(item => item[0]).join(", "), "black");
+        text = document.createElement("b");
+        text.innerHTML = Object.entries(data).map(item => item[0]).join(", ");
+        text.className = "plain-text";
+        text.appendChild(document.createElement("br"));
+
         summary_title.appendChild(text);
         button.onclick = (ev: MouseEvent): any => {
             if (Object.keys(data).length <= 0) 
@@ -247,12 +248,15 @@ export
         // summary_title.appendChild( summary_table as HTMLElement );
         // summary_title.appendChild( notes as HTMLElement);
 
+
         if (Object.keys(data.summary).length > 0) {
             for (let flow in data.summary) {
                 let flow_title = Private.createTitle(flow);
+                flow_title.className = "box";                
                 
                 // generate summary
                 summary_title.appendChild( flow_title as HTMLElement );
+                summary_title.appendChild(document.createElement("br"));
                 let patterns = data.summary[flow];
                 this.generateSummary(patterns, flow_title);
 
@@ -270,6 +274,7 @@ export
             this._input_table.createTFoot();
             this._input_table.tFoot.className = TABLE_BODY_CLASS;
             _input_title.appendChild( this._input_table as HTMLElement );
+            _input_title.appendChild(document.createElement("br"));
             Object.entries(data.input).forEach(item => this.processItem(item, this._input_table) );       
         }
 
@@ -278,6 +283,7 @@ export
             this._output_table.createTFoot();
             this._output_table.tFoot.className = TABLE_BODY_CLASS;
             _output_title.appendChild( this._output_table as HTMLElement );
+            _output_title.appendChild(document.createElement("br"));
             Object.entries(data.output).forEach(item => this.processItem(item, this._output_table) );
         }
 
@@ -316,39 +322,78 @@ export
             patterns.other_patterns.forEach( (pattern, _) => {
                 // let pattern = patterns.other_patterns[i];
                 if ("removerow" in pattern) {
-                    let sum_words = pattern.removerow + " rows are removed;"
-                    let sum_ele = Private.createText(sum_words, 'tomato');
+                    let ele = document.createElement("b");
+                    ele.className = "tomato-text";
+                    ele.innerHTML = pattern.removerow + " rows are removed;\n"
+                    let sum_words = ele.outerHTML;
+                    let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild( sum_ele );
                 } else if ("removerow_null" in pattern) {
-                    let sum_words = "rows containing null items of " + pattern.removerow_null + " are removed;"
-                    let sum_ele = Private.createText(sum_words, 'tomato');
+                    let ele = document.createElement("b");
+                    ele.className = "tomato-text";
+                    ele.innerHTML = "remove rows";
+                    let sum_words = ele.outerHTML + " containing null items of " + pattern.removerow_null + ";\n"
+                    let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild( sum_ele );
                 }
                 if ("removecol" in pattern) {
-                    let sum_words = "old columns: " + pattern.removecol + " are removed;"
-                    let sum_ele = Private.createText(sum_words, 'tomato');
+                    let ele = document.createElement("b");
+                    ele.className = "tomato-text";
+                    ele.innerHTML = "remove columns";
+                    let sum_words = ele.outerHTML + ": " + pattern.removecol + ";\n"
+                    let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild( sum_ele );
                 }
                 if ("rearrange" in pattern) {
                     let cols = pattern.rearrange.split('|');
-                    let sum_words = "columns " + cols[0] + " are rearranged to " + cols[1] + ";"
-                    let sum_ele = Private.createText(sum_words, 'tomato');
+                    let ele = document.createElement("b");
+                    ele.className = "tomato-text";
+                    ele.innerHTML = "rearranged";
+                    let sum_words = "columns " + cols[0] + " are " + ele.outerHTML + " to " + cols[1] + ";\n"
+                    let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild( sum_ele );
                 }
             });
         }
-        for (let col_str in patterns) {
-            if (col_str == "other_patterns")
-                continue;
+        let new_cols = Object.keys(patterns).filter(col_str => {
             let cols = col_str.split('|');
-            let sum_words = "";
-            if (cols[0]!=cols[1])
-                sum_words += "new ";
-            sum_words += "columns: " + cols[1] + " = ";
-            sum_words += patterns[col_str].join('(');
-            sum_words += "(" + cols[0] + ")".repeat(patterns[col_str].length);
-            let sum_ele = Private.createText(sum_words, 'tomato');
+            if (cols.length <=1)
+                return false;
+            return cols[0]!=cols[1]
+        });
+        let changed_cols = Object.keys(patterns).filter(col_str => {
+            let cols = col_str.split('|');
+            if (cols.length <=1)
+                return false;
+            return cols[0]==cols[1]
+        });
+
+        function draw_summary(patterns:any, prefix: string, col_names: string[]) {
+            let sum_words: string;
+            let sum_ele: HTMLElement;
+            let ele = document.createElement("b");
+            ele.className = "tomato-text";
+            ele.innerHTML = prefix + " columns"
+            sum_words = ele.outerHTML + ": " + col_names.map(x => x.split('|')[1]);
+            sum_ele = Private.createText(sum_words);
             flow_title.appendChild( sum_ele );
+            for (const col_str of col_names) {
+                let cols = col_str.split('|');
+                let ele = document.createElement("b");
+                ele.className = "tomato-text";
+                ele.innerHTML = patterns[col_str].join('(') + "(" + cols[0] + ")".repeat(patterns[col_str].length);
+                sum_words = cols[1] + " = " + ele.outerHTML
+                let sum_ele = Private.createText(sum_words);
+                sum_ele.className = "padded-text";
+                flow_title.appendChild( sum_ele );
+            }
+        }
+
+        if (changed_cols.length > 0) {
+            draw_summary(patterns, "changed", changed_cols);
+        }
+        if (new_cols.length > 0) {
+            draw_summary(patterns, "new", new_cols);
         }
     }
 
@@ -373,6 +418,7 @@ export
                 cell.innerHTML = "type";
             } else if (i == 1) {
                 cell.innerHTML = "range";
+                cell.title = "object: N = num of distinct values;\nnumber: [A, B] = range";
             }
             Private.read_row(row, content, columns, i);
         }
@@ -399,8 +445,7 @@ export
                 // add button
                 cell = row.insertCell(0);
                 cell.id = String(bounds[i])+ ":" + String(bounds[i+1]);
-                cell.appendChild(Private.createSmallButton("fa fa-plus", String(bounds[i+1]-bounds[i])));
-                // `<button class="small-btn"><i class="fa fa-plus"> ${bounds[i+1]-bounds[i]}</i></button>`;
+                cell.appendChild(Private.createSmallButton("fas fa-search-plus", String(bounds[i+1]-bounds[i])));
                 // initialize
                 Private.read_row(row, content, columns, bounds[i]);
 
@@ -418,17 +463,18 @@ export
                 });
             }
         } else {
-            // draw first k rows
+            // draw first 5 rows
             let initlen = Math.min(7, maxlen);
-            for (let i = 2; i < initlen; i++) {
-                row = df_table.tFoot.insertRow();
-                cell = row.insertCell(0);
-                cell.innerHTML = String(i - 2);
-                Private.read_row(row, content, columns, i);
-            }
-            button.title = `click to show more examples`;
-            button.id = String(initlen - 1) + ":" + String(maxlen)
-            button.addEventListener("click", function(this) {
+
+            // first row
+            row = df_table.tFoot.insertRow();
+            // add button
+            cell = row.insertCell(0);
+            cell.id = String(initlen - 1) + ":" + String(maxlen);
+            cell.appendChild(Private.createSmallButton("fas fa-search-plus", String(maxlen -  2)));
+            Private.read_row(row, content, columns, 2);
+            cell.title = `click to show more examples`;
+            cell.addEventListener("click", function(this) {
                 let [cur_idx, bound_idx] = this.id.split(":").map(Number);
                 cur_idx++;
                 if (cur_idx >= bound_idx) {
@@ -436,12 +482,20 @@ export
                 }
                 let new_row = df_table.insertRow();
                 cell = new_row.insertCell(0);
-                cell.innerHTML = String(cur_idx - 2);
+                // cell.innerHTML = String(cur_idx - 2);
                 Private.read_row(new_row, content, columns, cur_idx);
                 
                 this.id = `${cur_idx}:${bound_idx}`;
             }); 
-            (<HTMLTableRowElement> df_table.tHead.children[0]).cells[0].appendChild(button);
+
+            // next 4 rows
+            for (let i = 3; i < initlen; i++) {
+                row = df_table.tFoot.insertRow();
+                cell = row.insertCell(0);
+                // cell.innerHTML = String(i - 2);
+                Private.read_row(row, content, columns, i);
+            }
+
 
         }
 
@@ -513,32 +567,33 @@ namespace Private {
         for (let i =0; i< columns.length; i++) {
             let cell1 = hrow.insertCell( i );
             let col = columns[i];
+            cell1.innerHTML = col;
             if (columns[i].endsWith('[auto]')) {
                 cell1.innerHTML = col.slice(0,-7);
                 col = col.slice(0, -6);
+                cell1.appendChild(document.createElement("br"));
+                if (col.endsWith("-")) {
+                    let button = createSmallButton("fas fa-minus");
+                    button.title = "removed column";
+                    cell1.appendChild(button);
+                }
+                else if (col.endsWith("+")) {
+                    let button = createSmallButton("fas fa-plus");
+                    button.title = "added column";
+                    cell1.appendChild(button);
+                }
+                else if (col.endsWith("*")) {
+                    let button = createSmallButton("fas fa-star-of-life");
+                    button.title = "changed column";
+                    cell1.appendChild(button);
+                }
+                else if (col.endsWith(">")) {
+                    let button = createSmallButton("fas fa-eye");
+                    button.title = "read column";
+                    cell1.appendChild(button);
+                }
             }
-            else
-                cell1.innerHTML = col;
-            if (col.endsWith("-")) {
-                let button = createSmallButton("fas fa-minus");
-                button.title = "removed column";
-                cell1.appendChild(button);
-            }
-            else if (col.endsWith("+")) {
-                let button = createSmallButton("fas fa-plus");
-                button.title = "added column";
-                cell1.appendChild(button);
-            }
-            else if (col.endsWith("*")) {
-                let button = createSmallButton("fas fa-star-of-life");
-                button.title = "changed column";
-                cell1.appendChild(button);
-            }
-            else if (col.endsWith(">")) {
-                let button = createSmallButton("fas fa-eye");
-                button.title = "read column";
-                cell1.appendChild(button);
-            }            
+                        
         }
         return table;
     }
@@ -567,11 +622,14 @@ namespace Private {
     }
 
     export 
-        function createText(text: string, color: string) {
-        let ele = document.createElement( "b" );
-        ele.style.cssText = `font-family:'verdana';color:${color};`;
+        function createText(text: string, color="") {
+        let ele = document.createElement( "p" );
+        if (color == "")
+            ele.style.cssText = `font-family:'verdana'`;
+        else
+            ele.style.cssText = `font-family:'verdana';color:${color};`;
         ele.innerHTML = "\t"+text;
-        ele.appendChild(document.createElement( "br" ));
+        // ele.appendChild(document.createElement("br"))
         return ele;
     }
 }

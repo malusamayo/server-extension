@@ -85,3 +85,24 @@
     background-color: coral;
   }
   
+  .tomato-text {
+    color: tomato;
+  }
+
+  .plain-text {
+    font-family:'verdana';
+  }
+
+  .padded-text {
+    padding-left:5em;
+    box-decoration-break: clone;
+  }
+
+  .box {
+    margin-right: auto;
+    margin-top: 20px;
+    box-shadow: 1px 0px;
+    border: 5px double; 
+    padding: 10px 10px 10px 10px;
+    overflow-x: scroll;
+  }
