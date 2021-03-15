@@ -513,12 +513,11 @@ export
         cell = row.insertCell( 2 );
         cell.innerHTML = String(item[1].value);
 
-        if (item[1].type.startsWith("DataFrame")) {
-            cell = row.insertCell( 3 );
-            cell.innerHTML = String(item[1].shape);
-            // cell = row.insertCell( 4 );
-            // cell.innerHTML = highlightHTML(item[1].hint);
-        }
+        cell = row.insertCell( 3 );
+        cell.innerHTML = String(item[1].shape);
+        // cell = row.insertCell( 4 );
+        // cell.innerHTML = highlightHTML(item[1].hint);
+        
     }
 
     /**

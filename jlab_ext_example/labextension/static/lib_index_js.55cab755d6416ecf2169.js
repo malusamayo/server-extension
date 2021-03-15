@@ -1545,12 +1545,10 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
         cell.innerHTML = item[1].type; // should escape HTML chars
         cell = row.insertCell(2);
         cell.innerHTML = String(item[1].value);
-        if (item[1].type.startsWith("DataFrame")) {
-            cell = row.insertCell(3);
-            cell.innerHTML = String(item[1].shape);
-            // cell = row.insertCell( 4 );
-            // cell.innerHTML = highlightHTML(item[1].hint);
-        }
+        cell = row.insertCell(3);
+        cell.innerHTML = String(item[1].shape);
+        // cell = row.insertCell( 4 );
+        // cell.innerHTML = highlightHTML(item[1].hint);
     }
     /**
      * Handle source disposed signals.
@@ -1661,4 +1659,4 @@ var Private;
 /***/ })
 
 }]);
-//# sourceMappingURL=lib_index_js.048f12da9f100c7e7bed.js.map
+//# sourceMappingURL=lib_index_js.55cab755d6416ecf2169.js.map
