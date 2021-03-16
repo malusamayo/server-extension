@@ -401,7 +401,6 @@ export
     protected buildTable(content:any, markers: any) {
         let row: HTMLTableRowElement;
         let cell: HTMLTableDataCellElement;
-        let button = Private.createSmallButton("fa fa-plus");
 
         let columns = Object.keys(content);
         let df_table = Private.createTable([''].concat(columns));
@@ -480,7 +479,7 @@ export
                 if (cur_idx >= bound_idx) {
                     return
                 }
-                let new_row = df_table.insertRow();
+                let new_row = df_table.insertRow(2);
                 cell = new_row.insertCell(0);
                 // cell.innerHTML = String(cur_idx - 2);
                 Private.read_row(new_row, content, columns, cur_idx);
@@ -553,6 +552,9 @@ namespace Private {
             }
             else if (col.endsWith("[auto]")) {
                 cell.innerHTML = `<b>${cell.innerHTML}</b>`;
+                if (col.endsWith("*[auto]")) {
+                    cell.innerHTML = cell.innerHTML.replace("-&gt;", `<i class="fas fa-arrow-right"></i>`);
+                }
             }
         }
     }
@@ -571,25 +573,26 @@ namespace Private {
                 cell1.innerHTML = col.slice(0,-7);
                 col = col.slice(0, -6);
                 cell1.appendChild(document.createElement("br"));
+                let icon = document.createElement("i");
                 if (col.endsWith("-")) {
-                    let button = createSmallButton("fas fa-minus");
-                    button.title = "removed column";
-                    cell1.appendChild(button);
+                    icon.className = "fas fa-minus"
+                    icon.title = "removed column";
+                    cell1.appendChild(icon);
                 }
                 else if (col.endsWith("+")) {
-                    let button = createSmallButton("fas fa-plus");
-                    button.title = "added column";
-                    cell1.appendChild(button);
+                    icon.className = "fas fa-plus"
+                    icon.title = "added column";
+                    cell1.appendChild(icon);
                 }
                 else if (col.endsWith("*")) {
-                    let button = createSmallButton("fas fa-star-of-life");
-                    button.title = "changed column";
-                    cell1.appendChild(button);
+                    icon.className = "fas fa-star-of-life"
+                    icon.title = "changed column";
+                    cell1.appendChild(icon);
                 }
                 else if (col.endsWith(">")) {
-                    let button = createSmallButton("fas fa-eye");
-                    button.title = "read column";
-                    cell1.appendChild(button);
+                    icon.className = "fas fa-eye"
+                    icon.title = "read column";
+                    cell1.appendChild(icon);
                 }
             }
                         
