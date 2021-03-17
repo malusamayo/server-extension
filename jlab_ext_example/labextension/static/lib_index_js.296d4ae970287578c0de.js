@@ -1194,6 +1194,21 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
     constructor() {
         super();
         this._source = null;
+        this.HINTS = {
+            "str": "convert column to str type",
+            "category": "convert column to category type",
+            "int": "convert column to int type",
+            "encode": "encode column in consecutive integers",
+            "one_hot_encoding": "encode column in binary (0/1) integers",
+            "float": "convert column to float type",
+            "type_convert": "convert column type",
+            "fillna": "fill null values (e.g., nan->0)",
+            "merge": "merge items to reduce column's cardinality (e.g., Monday->1 & Mon->1)",
+            "num_transform": "manipulate numerical columns with unspecified transformation",
+            "str_transform": "manipulate string columns with unspecified transformation",
+            "substr": "take substring from column",
+            "compute": "manipulate column with unspecified transformation"
+        };
         this.addClass(PANEL_CLASS);
         this._input_table = Private.createTable(["Name", "Type", "Value", "Shape"]);
         this._input_table.className = TABLE_CLASS;
@@ -1289,7 +1304,6 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
             this.buttons.set(name, Private.createButton(name));
             this.buttons.get(name).title = "show details";
         }
-        this.transform_tables = [];
         // add icon lib
         let v = document.createElement("p");
         v.innerHTML = `<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">`;
@@ -1364,23 +1378,48 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
         // }   
         // })
     }
+    draw_inner_summary(patterns, prefix, col_names, flow_title) {
+        let sum_words;
+        let sum_ele;
+        let ele = document.createElement("b");
+        ele.className = "tomato-text";
+        ele.innerHTML = prefix + " columns";
+        sum_words = ele.outerHTML + ": " + col_names.map(x => x.split('|')[1]);
+        sum_ele = Private.createText(sum_words);
+        flow_title.appendChild(sum_ele);
+        for (const col_str of col_names) {
+            let cols = col_str.split('|');
+            let ele = document.createElement("b");
+            ele.className = "tomato-text";
+            ele.innerHTML = patterns[col_str].join('(') + "(" + cols[0] + ")".repeat(patterns[col_str].length);
+            ele.title = "";
+            for (const p of patterns[col_str]) {
+                ele.title = p + ": " + this.HINTS[p] + "\n" + ele.title;
+            }
+            sum_words = cols[1] + " = " + ele.outerHTML;
+            let sum_ele = Private.createText(sum_words);
+            sum_ele.className = "padded-text";
+            flow_title.appendChild(sum_ele);
+        }
+    }
     generateSummary(patterns, flow_title) {
         if ("other_patterns" in patterns) {
             patterns.other_patterns.forEach((pattern, _) => {
                 // let pattern = patterns.other_patterns[i];
-                if ("removerow" in pattern) {
+                if ("removerow" in pattern || "removerow_dup" in pattern) {
                     let ele = document.createElement("b");
                     ele.className = "tomato-text";
-                    ele.innerHTML = pattern.removerow + " rows are removed;\n";
+                    ele.innerHTML = pattern.removerow + ("removerow_dup" in pattern ? " duplicated" : "") + " rows are removed\n";
                     let sum_words = ele.outerHTML;
                     let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild(sum_ele);
                 }
                 else if ("removerow_null" in pattern) {
+                    let cols = pattern.removerow_null.split(",");
                     let ele = document.createElement("b");
                     ele.className = "tomato-text";
-                    ele.innerHTML = "remove rows";
-                    let sum_words = ele.outerHTML + " containing null items of " + pattern.removerow_null + ";\n";
+                    ele.innerHTML = "remove " + cols[0] + " rows";
+                    let sum_words = ele.outerHTML + " containing null items of [" + String(cols.slice(1)) + "]\n";
                     let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild(sum_ele);
                 }
@@ -1388,7 +1427,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                     let ele = document.createElement("b");
                     ele.className = "tomato-text";
                     ele.innerHTML = "remove columns";
-                    let sum_words = ele.outerHTML + ": " + pattern.removecol + ";\n";
+                    let sum_words = ele.outerHTML + ": " + pattern.removecol + "\n";
                     let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild(sum_ele);
                 }
@@ -1397,7 +1436,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                     let ele = document.createElement("b");
                     ele.className = "tomato-text";
                     ele.innerHTML = "rearranged";
-                    let sum_words = "columns " + cols[0] + " are " + ele.outerHTML + " to " + cols[1] + ";\n";
+                    let sum_words = "columns " + cols[0] + " are " + ele.outerHTML + " to " + cols[1] + "\n";
                     let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild(sum_ele);
                 }
@@ -1415,37 +1454,16 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                 return false;
             return cols[0] == cols[1];
         });
-        function draw_summary(patterns, prefix, col_names) {
-            let sum_words;
-            let sum_ele;
-            let ele = document.createElement("b");
-            ele.className = "tomato-text";
-            ele.innerHTML = prefix + " columns";
-            sum_words = ele.outerHTML + ": " + col_names.map(x => x.split('|')[1]);
-            sum_ele = Private.createText(sum_words);
-            flow_title.appendChild(sum_ele);
-            for (const col_str of col_names) {
-                let cols = col_str.split('|');
-                let ele = document.createElement("b");
-                ele.className = "tomato-text";
-                ele.innerHTML = patterns[col_str].join('(') + "(" + cols[0] + ")".repeat(patterns[col_str].length);
-                sum_words = cols[1] + " = " + ele.outerHTML;
-                let sum_ele = Private.createText(sum_words);
-                sum_ele.className = "padded-text";
-                flow_title.appendChild(sum_ele);
-            }
-        }
         if (changed_cols.length > 0) {
-            draw_summary(patterns, "changed", changed_cols);
+            this.draw_inner_summary(patterns, "changed", changed_cols, flow_title);
         }
         if (new_cols.length > 0) {
-            draw_summary(patterns, "new", new_cols);
+            this.draw_inner_summary(patterns, "new", new_cols, flow_title);
         }
     }
     buildTable(content, markers) {
         let row;
         let cell;
-        let button = Private.createSmallButton("fa fa-plus");
         let columns = Object.keys(content);
         let df_table = Private.createTable([''].concat(columns));
         df_table.className = TABLE_CLASS;
@@ -1458,10 +1476,13 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
             cell = row.insertCell(0);
             if (i == 0) {
                 cell.innerHTML = "type";
+                cell.title = "object: usually refers to str type";
+                cell.style.cursor = "pointer";
             }
             else if (i == 1) {
                 cell.innerHTML = "range";
-                cell.title = "object: N = num of distinct values;\nnumber: [A, B] = range";
+                cell.title = "For object type, N = num of distinct values;\nFor number type: [A, B] = [min, max]";
+                cell.style.cursor = "pointer";
             }
             Private.read_row(row, content, columns, i);
         }
@@ -1520,7 +1541,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                 if (cur_idx >= bound_idx) {
                     return;
                 }
-                let new_row = df_table.insertRow();
+                let new_row = df_table.insertRow(4);
                 cell = new_row.insertCell(0);
                 // cell.innerHTML = String(cur_idx - 2);
                 Private.read_row(new_row, content, columns, cur_idx);
@@ -1580,6 +1601,9 @@ var Private;
             }
             else if (col.endsWith("[auto]")) {
                 cell.innerHTML = `<b>${cell.innerHTML}</b>`;
+                if (col.endsWith("*[auto]")) {
+                    cell.innerHTML = cell.innerHTML.replace("-&gt;", `<i class="fas fa-arrow-right"></i>`);
+                }
             }
         }
     }
@@ -1597,25 +1621,27 @@ var Private;
                 cell1.innerHTML = col.slice(0, -7);
                 col = col.slice(0, -6);
                 cell1.appendChild(document.createElement("br"));
+                let icon = document.createElement("i");
+                icon.style.cursor = "pointer";
                 if (col.endsWith("-")) {
-                    let button = createSmallButton("fas fa-minus");
-                    button.title = "removed column";
-                    cell1.appendChild(button);
+                    icon.className = "fas fa-minus";
+                    icon.title = "removed column";
+                    cell1.appendChild(icon);
                 }
                 else if (col.endsWith("+")) {
-                    let button = createSmallButton("fas fa-plus");
-                    button.title = "added column";
-                    cell1.appendChild(button);
+                    icon.className = "fas fa-plus";
+                    icon.title = "added column";
+                    cell1.appendChild(icon);
                 }
                 else if (col.endsWith("*")) {
-                    let button = createSmallButton("fas fa-star-of-life");
-                    button.title = "changed column";
-                    cell1.appendChild(button);
+                    icon.className = "fas fa-star-of-life";
+                    icon.title = "changed column";
+                    cell1.appendChild(icon);
                 }
                 else if (col.endsWith(">")) {
-                    let button = createSmallButton("fas fa-eye");
-                    button.title = "read column";
-                    cell1.appendChild(button);
+                    icon.className = "fas fa-eye";
+                    icon.title = "read column";
+                    cell1.appendChild(icon);
                 }
             }
         }
@@ -1659,4 +1685,4 @@ var Private;
 /***/ })
 
 }]);
-//# sourceMappingURL=lib_index_js.55cab755d6416ecf2169.js.map
+//# sourceMappingURL=lib_index_js.296d4ae970287578c0de.js.map

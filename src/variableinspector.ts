@@ -108,11 +108,24 @@ export
     
     private _input_table: HTMLTableElement;
     private _output_table: HTMLTableElement;
-    private transform_tables: Array<HTMLTableElement>;
-    private function_tables: Array<HTMLTableElement>;
     private titles: Map<String, HTMLElement>;
     private TITLES: Array<string>;
     private buttons: Map<String, HTMLButtonElement>;
+    private HINTS = {
+                "str": "convert column to str type",
+                "category": "convert column to category type",
+                "int": "convert column to int type",
+                "encode": "encode column in consecutive integers",
+                "one_hot_encoding": "encode column in binary (0/1) integers",
+                "float": "convert column to float type",
+                "type_convert": "convert column type",
+                "fillna": "fill null values (e.g., nan->0)",
+                "merge": "merge items to reduce column's cardinality (e.g., Monday->1 & Mon->1)",
+                "num_transform": "manipulate numerical columns with unspecified transformation",
+                "str_transform": "manipulate string columns with unspecified transformation",
+                "substr": "take substring from column",
+                "compute": "manipulate column with unspecified transformation"
+            };
 
     constructor() {
         super();
@@ -225,7 +238,6 @@ export
             this.buttons.set(name, Private.createButton(name));
             this.buttons.get(name).title = "show details";
         }   
-        this.transform_tables = []
         
         // add icon lib
         let v = document.createElement("p");
@@ -317,22 +329,48 @@ export
         // })
     }
 
+    protected draw_inner_summary(patterns:any, prefix: string, col_names: string[], flow_title:HTMLElement) {
+        let sum_words: string;
+        let sum_ele: HTMLElement;
+        let ele = document.createElement("b");
+        ele.className = "tomato-text";
+        ele.innerHTML = prefix + " columns"
+        sum_words = ele.outerHTML + ": " + col_names.map(x => x.split('|')[1]);
+        sum_ele = Private.createText(sum_words);
+        flow_title.appendChild( sum_ele );
+        for (const col_str of col_names) {
+            let cols = col_str.split('|');
+            let ele = document.createElement("b");
+            ele.className = "tomato-text";
+            ele.innerHTML = patterns[col_str].join('(') + "(" + cols[0] + ")".repeat(patterns[col_str].length);
+            ele.title = "";
+            for (const p of patterns[col_str]) {
+                ele.title = p + ": " + this.HINTS[p] + "\n" + ele.title;
+            }
+            sum_words = cols[1] + " = " + ele.outerHTML
+            let sum_ele = Private.createText(sum_words);
+            sum_ele.className = "padded-text";
+            flow_title.appendChild( sum_ele );
+        }
+    }
+
     protected generateSummary(patterns: any, flow_title: HTMLElement) {
         if ("other_patterns" in patterns) {
             patterns.other_patterns.forEach( (pattern, _) => {
                 // let pattern = patterns.other_patterns[i];
-                if ("removerow" in pattern) {
+                if ("removerow" in pattern || "removerow_dup" in pattern) {
                     let ele = document.createElement("b");
                     ele.className = "tomato-text";
-                    ele.innerHTML = pattern.removerow + " rows are removed;\n"
+                    ele.innerHTML = pattern.removerow + ("removerow_dup" in pattern? " duplicated":"") + " rows are removed\n"
                     let sum_words = ele.outerHTML;
                     let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild( sum_ele );
                 } else if ("removerow_null" in pattern) {
+                    let cols = pattern.removerow_null.split(",");
                     let ele = document.createElement("b");
                     ele.className = "tomato-text";
-                    ele.innerHTML = "remove rows";
-                    let sum_words = ele.outerHTML + " containing null items of " + pattern.removerow_null + ";\n"
+                    ele.innerHTML = "remove " + cols[0] +" rows";
+                    let sum_words = ele.outerHTML + " containing null items of [" + String(cols.slice(1)) + "]\n"
                     let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild( sum_ele );
                 }
@@ -340,7 +378,7 @@ export
                     let ele = document.createElement("b");
                     ele.className = "tomato-text";
                     ele.innerHTML = "remove columns";
-                    let sum_words = ele.outerHTML + ": " + pattern.removecol + ";\n"
+                    let sum_words = ele.outerHTML + ": " + pattern.removecol + "\n"
                     let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild( sum_ele );
                 }
@@ -349,7 +387,7 @@ export
                     let ele = document.createElement("b");
                     ele.className = "tomato-text";
                     ele.innerHTML = "rearranged";
-                    let sum_words = "columns " + cols[0] + " are " + ele.outerHTML + " to " + cols[1] + ";\n"
+                    let sum_words = "columns " + cols[0] + " are " + ele.outerHTML + " to " + cols[1] + "\n"
                     let sum_ele = Private.createText(sum_words);
                     flow_title.appendChild( sum_ele );
                 }
@@ -368,32 +406,11 @@ export
             return cols[0]==cols[1]
         });
 
-        function draw_summary(patterns:any, prefix: string, col_names: string[]) {
-            let sum_words: string;
-            let sum_ele: HTMLElement;
-            let ele = document.createElement("b");
-            ele.className = "tomato-text";
-            ele.innerHTML = prefix + " columns"
-            sum_words = ele.outerHTML + ": " + col_names.map(x => x.split('|')[1]);
-            sum_ele = Private.createText(sum_words);
-            flow_title.appendChild( sum_ele );
-            for (const col_str of col_names) {
-                let cols = col_str.split('|');
-                let ele = document.createElement("b");
-                ele.className = "tomato-text";
-                ele.innerHTML = patterns[col_str].join('(') + "(" + cols[0] + ")".repeat(patterns[col_str].length);
-                sum_words = cols[1] + " = " + ele.outerHTML
-                let sum_ele = Private.createText(sum_words);
-                sum_ele.className = "padded-text";
-                flow_title.appendChild( sum_ele );
-            }
-        }
-
         if (changed_cols.length > 0) {
-            draw_summary(patterns, "changed", changed_cols);
+            this.draw_inner_summary(patterns, "changed", changed_cols, flow_title);
         }
         if (new_cols.length > 0) {
-            draw_summary(patterns, "new", new_cols);
+            this.draw_inner_summary(patterns, "new", new_cols, flow_title);
         }
     }
 
@@ -415,9 +432,12 @@ export
             cell = row.insertCell(0);
             if (i == 0) {
                 cell.innerHTML = "type";
+                cell.title = "object: usually refers to str type";
+                cell.style.cursor = "pointer";
             } else if (i == 1) {
                 cell.innerHTML = "range";
-                cell.title = "object: N = num of distinct values;\nnumber: [A, B] = range";
+                cell.title = "For object type, N = num of distinct values;\nFor number type: [A, B] = [min, max]";
+                cell.style.cursor = "pointer";
             }
             Private.read_row(row, content, columns, i);
         }
@@ -479,7 +499,7 @@ export
                 if (cur_idx >= bound_idx) {
                     return
                 }
-                let new_row = df_table.insertRow(2);
+                let new_row = df_table.insertRow(4);
                 cell = new_row.insertCell(0);
                 // cell.innerHTML = String(cur_idx - 2);
                 Private.read_row(new_row, content, columns, cur_idx);
@@ -574,6 +594,7 @@ namespace Private {
                 col = col.slice(0, -6);
                 cell1.appendChild(document.createElement("br"));
                 let icon = document.createElement("i");
+                icon.style.cursor = "pointer";
                 if (col.endsWith("-")) {
                     icon.className = "fas fa-minus"
                     icon.title = "removed column";

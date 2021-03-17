@@ -60,7 +60,6 @@
   
   /* Style buttons */
   .btn {
-    border: none; /* Remove borders */
     color: black; /* White text */
     font-family: verdana;
     padding: 8px 12px; /* Some padding */
@@ -74,7 +73,6 @@
   }
   
   .small-btn {
-    border: none; /* Remove borders */
     color: black; /* White text */
     font-size: 12px; /* Set a font size */
     cursor: pointer; /* Mouse pointer on hover */
@@ -87,6 +85,7 @@
   
   .tomato-text {
     color: tomato;
+    cursor: pointer;
   }
 
   .plain-text {
