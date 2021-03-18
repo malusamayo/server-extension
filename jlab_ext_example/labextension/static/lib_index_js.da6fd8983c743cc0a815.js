@@ -329,22 +329,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _jupyterlab_application__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @jupyterlab/apputils */ "webpack/sharing/consume/default/@jupyterlab/apputils");
 /* harmony import */ var _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _jupyterlab_coreutils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @jupyterlab/coreutils */ "webpack/sharing/consume/default/@jupyterlab/coreutils");
-/* harmony import */ var _jupyterlab_coreutils__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_coreutils__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _jupyterlab_launcher__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @jupyterlab/launcher */ "webpack/sharing/consume/default/@jupyterlab/launcher");
-/* harmony import */ var _jupyterlab_launcher__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_launcher__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _jupyterlab_docmanager__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @jupyterlab/docmanager */ "webpack/sharing/consume/default/@jupyterlab/docmanager");
-/* harmony import */ var _jupyterlab_docmanager__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_docmanager__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _jupyterlab_notebook__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @jupyterlab/notebook */ "webpack/sharing/consume/default/@jupyterlab/notebook");
-/* harmony import */ var _jupyterlab_notebook__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_notebook__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _jupyterlab_ui_components__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @jupyterlab/ui-components */ "webpack/sharing/consume/default/@jupyterlab/ui-components");
-/* harmony import */ var _jupyterlab_ui_components__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_ui_components__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _variableinspector__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./variableinspector */ "./lib/variableinspector.js");
-/* harmony import */ var _manager__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./manager */ "./lib/manager.js");
-/* harmony import */ var _handler__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./handler */ "./lib/handler.js");
-/* harmony import */ var _kernelconnector__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./kernelconnector */ "./lib/kernelconnector.js");
-/* harmony import */ var _inspectorscripts__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./inspectorscripts */ "./lib/inspectorscripts.js");
-
+/* harmony import */ var _jupyterlab_launcher__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @jupyterlab/launcher */ "webpack/sharing/consume/default/@jupyterlab/launcher");
+/* harmony import */ var _jupyterlab_launcher__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_launcher__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _jupyterlab_docmanager__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @jupyterlab/docmanager */ "webpack/sharing/consume/default/@jupyterlab/docmanager");
+/* harmony import */ var _jupyterlab_docmanager__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_docmanager__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _jupyterlab_notebook__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @jupyterlab/notebook */ "webpack/sharing/consume/default/@jupyterlab/notebook");
+/* harmony import */ var _jupyterlab_notebook__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_notebook__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _jupyterlab_ui_components__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @jupyterlab/ui-components */ "webpack/sharing/consume/default/@jupyterlab/ui-components");
+/* harmony import */ var _jupyterlab_ui_components__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_ui_components__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _variableinspector__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./variableinspector */ "./lib/variableinspector.js");
+/* harmony import */ var _manager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./manager */ "./lib/manager.js");
+/* harmony import */ var _handler__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./handler */ "./lib/handler.js");
+/* harmony import */ var _kernelconnector__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./kernelconnector */ "./lib/kernelconnector.js");
+/* harmony import */ var _inspectorscripts__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./inspectorscripts */ "./lib/inspectorscripts.js");
 
 
 
@@ -375,10 +372,10 @@ var CommandIDs;
 const variableinspector = {
     id: "jupyterlab-extension:autodoc-panel",
     requires: [_jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1__.ICommandPalette, _jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__.ILayoutRestorer, _jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__.ILabShell],
-    provides: _manager__WEBPACK_IMPORTED_MODULE_7__.IVariableInspectorManager,
+    provides: _manager__WEBPACK_IMPORTED_MODULE_6__.IVariableInspectorManager,
     autoStart: true,
     activate: (app, palette, restorer, labShell) => {
-        const manager = new _manager__WEBPACK_IMPORTED_MODULE_7__.VariableInspectorManager();
+        const manager = new _manager__WEBPACK_IMPORTED_MODULE_6__.VariableInspectorManager();
         const category = "Autodoc Panel";
         const command = CommandIDs.open;
         const label = "Open Autodoc Panel";
@@ -388,7 +385,7 @@ const variableinspector = {
          * Create and track a new inspector.
          */
         function newPanel() {
-            const panel = new _variableinspector__WEBPACK_IMPORTED_MODULE_8__.VariableInspectorPanel();
+            const panel = new _variableinspector__WEBPACK_IMPORTED_MODULE_7__.VariableInspectorPanel();
             panel.id = "jp-autodoc-panel";
             panel.title.label = "Autodoc Panel";
             panel.title.closable = true;
@@ -444,18 +441,20 @@ class ClassicButton {
     createNew(panel) {
         const button = new _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1__.ToolbarButton({
             tooltip: 'Run AutoDoc in the backend',
-            icon: _jupyterlab_ui_components__WEBPACK_IMPORTED_MODULE_6__.extensionIcon,
+            icon: _jupyterlab_ui_components__WEBPACK_IMPORTED_MODULE_5__.extensionIcon,
             onClick: async () => {
                 const dataToSend = { command: "run", path: panel["context"].path };
                 try {
-                    const reply = await (0,_handler__WEBPACK_IMPORTED_MODULE_9__.requestAPI)('hello', {
+                    const reply = await (0,_handler__WEBPACK_IMPORTED_MODULE_8__.requestAPI)('hello', {
                         body: JSON.stringify(dataToSend),
                         method: 'POST'
                     });
                     console.log(reply);
+                    alert("AutoDoc has been run successfully in the backend!");
                 }
                 catch (reason) {
                     console.error(`Error on POST /jlab-ext-example/hello ${dataToSend}.\n${reason}`);
+                    alert("AutoDoc ran into errors. Generation Failed.");
                 }
             }
         });
@@ -469,65 +468,14 @@ class ClassicButton {
 const extension = {
     id: 'server-extension-example',
     autoStart: true,
-    optional: [_jupyterlab_launcher__WEBPACK_IMPORTED_MODULE_3__.ILauncher],
-    requires: [_jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__.ILabShell, _jupyterlab_docmanager__WEBPACK_IMPORTED_MODULE_4__.IDocumentManager, _jupyterlab_notebook__WEBPACK_IMPORTED_MODULE_5__.INotebookTracker, _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1__.ICommandPalette, _jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__.ILayoutRestorer],
+    optional: [_jupyterlab_launcher__WEBPACK_IMPORTED_MODULE_2__.ILauncher],
+    requires: [_jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__.ILabShell, _jupyterlab_docmanager__WEBPACK_IMPORTED_MODULE_3__.IDocumentManager, _jupyterlab_notebook__WEBPACK_IMPORTED_MODULE_4__.INotebookTracker, _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1__.ICommandPalette, _jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__.ILayoutRestorer],
     activate: async (app, panel, labShell, docManager, palette, restorer, launcher) => {
         console.log('JupyterLab extension server-extension-example is activated!');
         // Add the toolbar button to the notebook toolbar
         const { commands, docRegistry, shell } = app;
         const classicButton = new ClassicButton(commands);
         docRegistry.addWidgetExtension('Notebook', classicButton);
-        // let widget: ModelCardPanel;
-        // async function createPanel(): Promise<ModelCardPanel> {
-        //   if (!widget) {
-        //     widget = new ModelCardPanel(app, docManager);
-        //   }
-        //   if (!tracker.has(widget)) {
-        //     tracker.add(widget);
-        //   }
-        //   if (!widget.isAttached) {
-        //     app.shell.add(widget, 'main');
-        //     app.shell.activateById(widget.id);
-        //     app.docRegistry.addWidgetExtension('Notebook', widget);
-        //   }
-        //   // Refresh the content
-        //   widget.update();
-        //   return widget;
-        // }
-        // const command = CommandIDs.open;
-        // app.commands.addCommand(command, {
-        //   label: 'Model Card',
-        //   caption: 'Generate Model Card',
-        //   isVisible: () => false,
-        //   execute: createPanel
-        // });
-        // palette.addItem({command , category: 'Model Card' });
-        // const tracker = new WidgetTracker<ModelCardPanel>({
-        //   namespace: 'model-card'
-        // });
-        // restorer.restore(tracker, {
-        //   command: command,
-        //   name: () => 'model-card'
-        // });
-        // const { commands, shell } = app;
-        // const command = CommandIDs.get;
-        // const category = 'Extension Examples';
-        // commands.addCommand(command, {
-        //   label: 'Get Server Content in a IFrame Widget',
-        //   caption: 'Get Server Content in a IFrame Widget',
-        //   execute: () => {
-        //     const widget = new IFrameWidget();
-        //     shell.add(widget, 'main');
-        //   }
-        // });
-        // palette.addItem({ command, category: category });
-        // if (launcher) {
-        //   // Add launcher
-        //   launcher.add({
-        //     command: command,
-        //     category: category
-        //   });
-        // }
     }
 };
 /**
@@ -535,7 +483,7 @@ const extension = {
  */
 const notebooks = {
     id: "jupyterlab-extension:autodoc-panel:notebooks",
-    requires: [_manager__WEBPACK_IMPORTED_MODULE_7__.IVariableInspectorManager, _jupyterlab_notebook__WEBPACK_IMPORTED_MODULE_5__.INotebookTracker, _jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__.ILabShell],
+    requires: [_manager__WEBPACK_IMPORTED_MODULE_6__.IVariableInspectorManager, _jupyterlab_notebook__WEBPACK_IMPORTED_MODULE_4__.INotebookTracker, _jupyterlab_application__WEBPACK_IMPORTED_MODULE_0__.ILabShell],
     autoStart: true,
     activate: (app, manager, notebooks, labShell) => {
         const handlers = {};
@@ -547,12 +495,12 @@ const notebooks = {
             //A promise that resolves after the initialization of the handler is done.
             handlers[nbPanel.id] = new Promise(function (resolve, reject) {
                 const session = nbPanel.sessionContext;
-                const connector = new _kernelconnector__WEBPACK_IMPORTED_MODULE_10__.KernelConnector({ session });
+                const connector = new _kernelconnector__WEBPACK_IMPORTED_MODULE_9__.KernelConnector({ session });
                 const rendermime = nbPanel.content.rendermime;
                 let scripts;
                 scripts = connector.ready.then(() => {
                     return connector.kernelLanguage.then(lang => {
-                        return _inspectorscripts__WEBPACK_IMPORTED_MODULE_11__.Languages.getScript(lang);
+                        return _inspectorscripts__WEBPACK_IMPORTED_MODULE_10__.Languages.getScript(lang);
                     });
                 });
                 scripts.then((result) => {
@@ -571,7 +519,7 @@ const notebooks = {
                         initScript: initScript,
                         id: session.path //Using the sessions path as an identifier for now.
                     };
-                    const handler = new _handler__WEBPACK_IMPORTED_MODULE_9__.VariableInspectionHandler(options);
+                    const handler = new _handler__WEBPACK_IMPORTED_MODULE_8__.VariableInspectionHandler(options);
                     manager.addHandler(handler);
                     nbPanel.disposed.connect(() => {
                         delete handlers[nbPanel.id];
@@ -594,7 +542,7 @@ const notebooks = {
             const dataToSend = { command: "fetch", path: notebooks.currentWidget.context.path, cell: curCellIdx };
             console.log("fetching data from backend");
             try {
-                const reply = await (0,_handler__WEBPACK_IMPORTED_MODULE_9__.requestAPI)('hello', {
+                const reply = await (0,_handler__WEBPACK_IMPORTED_MODULE_8__.requestAPI)('hello', {
                     body: JSON.stringify(dataToSend),
                     method: 'POST'
                 });
@@ -624,17 +572,6 @@ const notebooks = {
 */
 const plugins = [variableinspector, extension, notebooks];
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (plugins);
-class IFrameWidget extends _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1__.IFrame {
-    constructor() {
-        super();
-        const baseUrl = _jupyterlab_coreutils__WEBPACK_IMPORTED_MODULE_2__.PageConfig.getBaseUrl();
-        this.url = baseUrl + 'jlab-ext-example/public/index.html';
-        this.id = 'doc-example';
-        this.title.label = 'Server Doc';
-        this.title.closable = true;
-        this.node.style.overflowY = 'auto';
-    }
-}
 
 
 /***/ }),
@@ -1740,4 +1677,4 @@ var Private;
 /***/ })
 
 }]);
-//# sourceMappingURL=lib_index_js.5767f7ab4bb3da3192ee.js.map
+//# sourceMappingURL=lib_index_js.da6fd8983c743cc0a815.js.map

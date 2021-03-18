@@ -162,10 +162,12 @@ class ClassicButton
             method: 'POST'
           });
           console.log(reply);
+          alert("AutoDoc has been run successfully in the backend!");
         } catch (reason) {
           console.error(
             `Error on POST /jlab-ext-example/hello ${dataToSend}.\n${reason}`
           );
+          alert("AutoDoc ran into errors. Generation Failed.");
         }
       }
     });
@@ -200,70 +202,7 @@ const extension: JupyterFrontEndPlugin<void> = {
     const classicButton = new ClassicButton(commands);
     docRegistry.addWidgetExtension('Notebook', classicButton);
 
-    // let widget: ModelCardPanel;
-
-    // async function createPanel(): Promise<ModelCardPanel> {
-    //   if (!widget) {
-    //     widget = new ModelCardPanel(app, docManager);
-    //   }
-    //   if (!tracker.has(widget)) {
-    //     tracker.add(widget);
-    //   }
-    //   if (!widget.isAttached) {
-    //     app.shell.add(widget, 'main');
-    //     app.shell.activateById(widget.id);
-    //     app.docRegistry.addWidgetExtension('Notebook', widget);
-    //   }
-
-    //   // Refresh the content
-    //   widget.update();
-    //   return widget;
-    // }
-
-    // const command = CommandIDs.open;
-    // app.commands.addCommand(command, {
-    //   label: 'Model Card',
-    //   caption: 'Generate Model Card',
-    //   isVisible: () => false,
-    //   execute: createPanel
-    // });
-
-    // palette.addItem({command , category: 'Model Card' });
-
-    // const tracker = new WidgetTracker<ModelCardPanel>({
-    //   namespace: 'model-card'
-    // });
-
-    // restorer.restore(tracker, {
-    //   command: command,
-    //   name: () => 'model-card'
-    // });
-
-    
-    
-    // const { commands, shell } = app;
-    // const command = CommandIDs.get;
-    // const category = 'Extension Examples';
-
-    // commands.addCommand(command, {
-    //   label: 'Get Server Content in a IFrame Widget',
-    //   caption: 'Get Server Content in a IFrame Widget',
-    //   execute: () => {
-    //     const widget = new IFrameWidget();
-    //     shell.add(widget, 'main');
-    //   }
-    // });
-
-    // palette.addItem({ command, category: category });
-
-    // if (launcher) {
-    //   // Add launcher
-    //   launcher.add({
-    //     command: command,
-    //     category: category
-    //   });
-    // }
-    }
+  }
 };
 
 /**
@@ -379,14 +318,3 @@ const plugins: JupyterFrontEndPlugin<any>[] = [variableinspector, extension, not
 
 export default plugins;
 
-class IFrameWidget extends IFrame {
-  constructor() {
-    super();
-    const baseUrl = PageConfig.getBaseUrl();
-    this.url = baseUrl + 'jlab-ext-example/public/index.html';
-    this.id = 'doc-example';
-    this.title.label = 'Server Doc';
-    this.title.closable = true;
-    this.node.style.overflowY = 'auto';
-  }
-}

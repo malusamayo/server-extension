@@ -85,7 +85,7 @@
     "extension": true,
     "outputDir": "jlab_ext_example/labextension",
     "_build": {
-      "load": "static\\remoteEntry.4dc5295a10d33ad104a8.js",
+      "load": "static\\remoteEntry.9b84628e5ee12adcccbf.js",
       "extension": "./extension",
       "style": "./style"
     }
