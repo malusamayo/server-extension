@@ -1209,6 +1209,14 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
             "substr": "take substring from column",
             "compute": "manipulate column with unspecified transformation"
         };
+        this.CLUSTER_HINTS = {
+            "replace": { "0": "value unchanged", "1": "value changed", "-2": "error" },
+            "strip": { "0": "value unchanged", "1": "values changed" },
+            "upper": { "0": "value unchanged", "1": "value changed" },
+            "lower": { "0": "value unchanged", "1": "value changed" },
+            "lambda_if": { "0": "take False branch", "1": "take True branch" },
+            "fillna": { "0": "value unchanged", "1": "nan filled" }
+        };
         this.addClass(PANEL_CLASS);
         this._input_table = Private.createTable(["Name", "Type", "Value", "Shape"]);
         this._input_table.className = TABLE_CLASS;
@@ -1461,6 +1469,53 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
             this.draw_inner_summary(patterns, "new", new_cols, flow_title);
         }
     }
+    buildClusterHints(num, size, path) {
+        let ret;
+        ret = "Cluster No." + String(num) + "\n";
+        ret += "Size: " + String(size) + "\n";
+        ret += "Paths:\n";
+        let items = path.split("(").filter(x => x).map(x => x.replace(/[')]/g, '').split(',').map(x => x.trim()).filter(x => x));
+        for (let i of items) {
+            let f_name = i[i.length - 1];
+            ret += "\t" + f_name.replace("default_", "") + ": ";
+            if (f_name in this.CLUSTER_HINTS) {
+                ret += this.CLUSTER_HINTS[f_name][i[0]];
+            }
+            else if (f_name == "replace_ls") {
+                if (i[0] == "-1")
+                    ret += "value unchanged";
+                else
+                    ret += "value replaced with No." + i[0] + " item in list";
+            }
+            else if (f_name == "split") {
+                if (i[0] == "-2")
+                    ret += "error";
+                else
+                    ret += "value split into " + i[0] + " items";
+            }
+            else if (f_name == "map_dict") {
+                if (i[0] == "-1")
+                    ret += "value unchanged";
+                else
+                    ret += "value replaced with No." + i[0] + " item in map";
+            }
+            else if (f_name.startsWith("default")) {
+                if (i[0] == "DUMMY")
+                    ret += "value unchanged";
+                else
+                    ret += "value set to " + i[0];
+            }
+            else {
+                let exec = i.slice(0, -1).map(Number);
+                let min = Math.min(...exec);
+                exec = exec.map(x => x - min);
+                ret += "path: " + String(exec);
+            }
+            ret += "\n";
+        }
+        ret += "click to see more examples\n";
+        return ret;
+    }
     buildTable(content, markers) {
         let row;
         let cell;
@@ -1510,7 +1565,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                 cell.appendChild(Private.createSmallButton("fas fa-search-plus", String(bounds[i + 1] - bounds[i])));
                 // initialize
                 Private.read_row(row, content, columns, bounds[i]);
-                cell.title = `[Size ${bounds[i + 1] - bounds[i]}], Path: ${paths[i]}, click to show more examples`;
+                cell.title = this.buildClusterHints(i, bounds[i + 1] - bounds[i], paths[i]);
                 cell.addEventListener("click", function () {
                     let [cur_idx, bound_idx] = this.id.split(":").map(Number);
                     cur_idx++;
@@ -1685,4 +1740,4 @@ var Private;
 /***/ })
 
 }]);
-//# sourceMappingURL=lib_index_js.296d4ae970287578c0de.js.map
+//# sourceMappingURL=lib_index_js.5767f7ab4bb3da3192ee.js.map

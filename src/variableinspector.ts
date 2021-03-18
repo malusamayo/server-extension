@@ -415,6 +415,59 @@ export
     }
 
 
+    private CLUSTER_HINTS = {
+        "replace": {"0": "value unchanged", "1": "value changed", "-2": "error"},
+        "strip": {"0": "value unchanged", "1": "values changed"},
+        "upper": {"0": "value unchanged", "1": "value changed"},
+        "lower": {"0": "value unchanged", "1": "value changed"},
+        "lambda_if": {"0": "take False branch", "1": "take True branch"},
+        "fillna": {"0": "value unchanged", "1": "nan filled"}
+    };
+
+    protected buildClusterHints(num: number, size: number, path: string) {
+        let ret: string;
+        ret = "Cluster No." + String(num) + "\n";
+        ret += "Size: " + String(size) + "\n";
+        ret += "Paths:\n";
+        let items = path.split("(").filter(x => x).map(
+            x => x.replace(/[')]/g, '').split(',').map(x => x.trim()).filter(x => x));
+        for (let i of items) {
+            let f_name = i[i.length - 1]
+            ret += "\t" + f_name.replace("default_", "") + ": ";
+            if (f_name in this.CLUSTER_HINTS) {
+                ret += this.CLUSTER_HINTS[f_name][i[0]];
+            } else if (f_name == "replace_ls") {
+                if (i[0] == "-1")
+                    ret += "value unchanged"
+                else
+                    ret += "value replaced with No." + i[0] + " item in list";
+            } else if (f_name == "split") {
+                if (i[0] == "-2")
+                    ret += "error"
+                else
+                    ret += "value split into " + i[0] + " items"
+            } else if (f_name == "map_dict") {
+                if (i[0] == "-1")
+                    ret += "value unchanged"
+                else
+                    ret += "value replaced with No." + i[0] + " item in map";
+            } else if (f_name.startsWith("default")) {
+                if (i[0] == "DUMMY")
+                    ret += "value unchanged"
+                else
+                    ret += "value set to " + i[0];
+            } else {
+                let exec = i.slice(0,-1).map(Number);
+                let min = Math.min(...exec);
+                exec = exec.map(x => x - min)
+                ret += "path: " + String(exec)
+            }
+            ret += "\n";
+        }
+        ret += "click to see more examples\n";
+        return ret
+    }
+
     protected buildTable(content:any, markers: any) {
         let row: HTMLTableRowElement;
         let cell: HTMLTableDataCellElement;
@@ -468,7 +521,7 @@ export
                 // initialize
                 Private.read_row(row, content, columns, bounds[i]);
 
-                cell.title = `[Size ${bounds[i+1]-bounds[i]}], Path: ${paths[i]}, click to show more examples`;
+                cell.title = this.buildClusterHints(i, bounds[i+1]-bounds[i], paths[i]);
                 cell.addEventListener("click", function(this) {
                     let [cur_idx, bound_idx] = this.id.split(":").map(Number);
                     cur_idx++;
