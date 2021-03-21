@@ -1330,7 +1330,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
         let ele = document.createElement("b");
         ele.className = "tomato-text";
         ele.innerHTML = prefix + " columns";
-        sum_words = ele.outerHTML + ": " + col_names.map(x => x.split('|')[1]);
+        sum_words = ele.outerHTML + ": [" + col_names.map(x => x.split('|')[1]) + "]";
         sum_ele = Private.createText(sum_words);
         flow_title.appendChild(sum_ele);
         for (const col_str of col_names) {
@@ -1380,8 +1380,8 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                 }
                 if ("rearrange" in pattern) {
                     let cols = pattern.rearrange.split('|');
-                    ele.innerHTML = "rearranged";
-                    sum_words = "columns [" + cols[0] + "] are " + ele.outerHTML + " to [" + cols[1] + "]\n";
+                    ele.innerHTML = "rearrange columns";
+                    sum_words = ele.outerHTML + ": [" + cols[0] + "] to [" + cols[1] + "]\n";
                 }
                 if ("copy" in pattern) {
                     ele.innerHTML = "copy dataframe";
@@ -1700,4 +1700,4 @@ var Private;
 /***/ })
 
 }]);
-//# sourceMappingURL=lib_index_js.0b39fb24d44300755953.js.map
+//# sourceMappingURL=lib_index_js.7afe8257c280f2bfb07f.js.map
