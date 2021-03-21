@@ -1152,7 +1152,8 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
             "upper": { "0": "value unchanged", "1": "value changed" },
             "lower": { "0": "value unchanged", "1": "value changed" },
             "lambda_if": { "0": "take False branch", "1": "take True branch" },
-            "fillna": { "0": "value unchanged", "1": "nan filled" }
+            "empty": { "0": "default cluster" },
+            "removed": { "0": "removed rows" }
         };
         this.addClass(PANEL_CLASS);
         this._input_table = Private.createTable(["Name", "Type", "Value", "Shape"]);
@@ -1334,14 +1335,21 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
         flow_title.appendChild(sum_ele);
         for (const col_str of col_names) {
             let cols = col_str.split('|');
-            let ele = document.createElement("b");
-            ele.className = "tomato-text";
-            ele.innerHTML = patterns[col_str].join('(') + "(" + cols[0] + ")".repeat(patterns[col_str].length);
-            ele.title = "";
-            for (const p of patterns[col_str]) {
-                ele.title = p + ": " + this.HINTS[p] + "\n" + ele.title;
-            }
-            sum_words = cols[1] + " = " + ele.outerHTML;
+            patterns[col_str] = patterns[col_str].map((x) => {
+                let ele = document.createElement("b");
+                ele.className = "tomato-text";
+                ele.innerHTML = x;
+                ele.title = x + ": " + this.HINTS[x];
+                return ele.outerHTML;
+            });
+            // let ele = document.createElement("b");
+            // ele.className = "tomato-text";
+            // ele.innerHTML = patterns[col_str].join('(') + "(" + cols[0] + ")".repeat(patterns[col_str].length);
+            // ele.title = "";
+            // for (const p of patterns[col_str]) {
+            //     ele.title = p + ": " + this.HINTS[p] + "\n" + ele.title;
+            // }
+            sum_words = cols[1] + " = " + patterns[col_str].join('(') + "(" + cols[0] + ")".repeat(patterns[col_str].length);
             let sum_ele = Private.createText(sum_words);
             sum_ele.className = "padded-text";
             flow_title.appendChild(sum_ele);
@@ -1350,41 +1358,37 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
     generateSummary(patterns, flow_title) {
         if ("other_patterns" in patterns) {
             patterns.other_patterns.forEach((pattern, _) => {
-                // let pattern = patterns.other_patterns[i];
+                let ele = document.createElement("b");
+                ele.className = "tomato-text";
+                let sum_words = "";
                 if ("removerow" in pattern || "removerow_dup" in pattern) {
-                    let ele = document.createElement("b");
-                    ele.className = "tomato-text";
-                    ele.innerHTML = pattern.removerow + ("removerow_dup" in pattern ? " duplicated" : "") + " rows are removed\n";
-                    let sum_words = ele.outerHTML;
-                    let sum_ele = Private.createText(sum_words);
-                    flow_title.appendChild(sum_ele);
+                    ele.innerHTML = "remove " + pattern.removerow + ("removerow_dup" in pattern ? " duplicated" : "") + " rows";
+                    sum_words = ele.outerHTML;
                 }
                 else if ("removerow_null" in pattern) {
                     let cols = pattern.removerow_null.split(",");
-                    let ele = document.createElement("b");
-                    ele.className = "tomato-text";
                     ele.innerHTML = "remove " + cols[0] + " rows";
-                    let sum_words = ele.outerHTML + " containing null items of [" + String(cols.slice(1)) + "]\n";
-                    let sum_ele = Private.createText(sum_words);
-                    flow_title.appendChild(sum_ele);
+                    ele.title = "removed rows contain null items in one of following columns: " + "[" + String(cols.slice(1)) + "]";
+                    sum_words = ele.outerHTML + " based on null values";
                 }
                 if ("removecol" in pattern) {
-                    let ele = document.createElement("b");
-                    ele.className = "tomato-text";
                     ele.innerHTML = "remove columns";
-                    let sum_words = ele.outerHTML + ": " + pattern.removecol + "\n";
-                    let sum_ele = Private.createText(sum_words);
-                    flow_title.appendChild(sum_ele);
+                    // let col_ele = document.createElement("div");
+                    // col_ele.className = "padded-div";
+                    // col_ele.innerText = "[" + pattern.removecol + "]";
+                    sum_words = ele.outerHTML + ": " + "[" + pattern.removecol + "]" + "\n";
                 }
                 if ("rearrange" in pattern) {
                     let cols = pattern.rearrange.split('|');
-                    let ele = document.createElement("b");
-                    ele.className = "tomato-text";
                     ele.innerHTML = "rearranged";
-                    let sum_words = "columns " + cols[0] + " are " + ele.outerHTML + " to " + cols[1] + "\n";
-                    let sum_ele = Private.createText(sum_words);
-                    flow_title.appendChild(sum_ele);
+                    sum_words = "columns [" + cols[0] + "] are " + ele.outerHTML + " to [" + cols[1] + "]\n";
                 }
+                if ("copy" in pattern) {
+                    ele.innerHTML = "copy dataframe";
+                    sum_words = ele.outerHTML;
+                }
+                let sum_ele = Private.createText(sum_words);
+                flow_title.appendChild(sum_ele);
             });
         }
         let new_cols = Object.keys(patterns).filter(col_str => {
@@ -1405,6 +1409,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
         if (new_cols.length > 0) {
             this.draw_inner_summary(patterns, "new", new_cols, flow_title);
         }
+        flow_title.appendChild(document.createElement("br"));
     }
     buildClusterHints(num, size, path) {
         let ret;
@@ -1418,35 +1423,50 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
             if (f_name in this.CLUSTER_HINTS) {
                 ret += this.CLUSTER_HINTS[f_name][i[0]];
             }
-            else if (f_name == "replace_ls") {
-                if (i[0] == "-1")
-                    ret += "value unchanged";
-                else
-                    ret += "value replaced with No." + i[0] + " item in list";
-            }
-            else if (f_name == "split") {
-                if (i[0] == "-2")
-                    ret += "error";
-                else
-                    ret += "value split into " + i[0] + " items";
-            }
-            else if (f_name == "map_dict") {
-                if (i[0] == "-1")
-                    ret += "value unchanged";
-                else
-                    ret += "value replaced with No." + i[0] + " item in map";
-            }
-            else if (f_name.startsWith("default")) {
-                if (i[0] == "DUMMY")
-                    ret += "value unchanged";
-                else
-                    ret += "value set to " + i[0];
-            }
             else {
-                let exec = i.slice(0, -1).map(Number);
-                let min = Math.min(...exec);
-                exec = exec.map(x => x - min);
-                ret += "path: " + String(exec);
+                switch (f_name) {
+                    case "replace_ls": {
+                        if (i[0] == "-1")
+                            ret += "value unchanged";
+                        else
+                            ret += "value replaced with No." + i[0] + " item in list";
+                        break;
+                    }
+                    case "split": {
+                        if (i[0] == "-2")
+                            ret += "error";
+                        else
+                            ret += "value split into " + i[0] + " items";
+                        break;
+                    }
+                    case "fillna": {
+                        if (i[0] == "0")
+                            ret += "value unchanged";
+                        else
+                            ret += "fill " + i[0] + " nan items";
+                        break;
+                    }
+                    case "map_dict": {
+                        if (i[0] == "-1")
+                            ret += "value unchanged";
+                        else
+                            ret += "value replaced with No." + i[0] + " item in map";
+                        break;
+                    }
+                    default: {
+                        if (f_name.startsWith("default")) {
+                            if (i[0] == "DUMMY")
+                                ret += "value unchanged";
+                            else
+                                ret += "value set to " + i[0];
+                            break;
+                        }
+                        let exec = i.slice(0, -1).map(Number);
+                        let min = Math.min(...exec);
+                        exec = exec.map(x => x - min);
+                        ret += "path: " + String(exec);
+                    }
+                }
             }
             ret += "\n";
         }
@@ -1456,6 +1476,8 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
     buildTable(content, markers) {
         let row;
         let cell;
+        if (!content)
+            return document.createElement("br");
         let columns = Object.keys(content);
         let df_table = Private.createTable([''].concat(columns));
         df_table.className = TABLE_CLASS;
@@ -1500,9 +1522,9 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                 cell = row.insertCell(0);
                 cell.id = String(bounds[i]) + ":" + String(bounds[i + 1]);
                 cell.appendChild(Private.createSmallButton("fas fa-search-plus", String(bounds[i + 1] - bounds[i])));
-                // initialize
-                Private.read_row(row, content, columns, bounds[i]);
                 cell.title = this.buildClusterHints(i, bounds[i + 1] - bounds[i], paths[i]);
+                // initialize
+                Private.read_row(row, content, columns, bounds[i], cell.title.includes("removed rows"));
                 cell.addEventListener("click", function () {
                     let [cur_idx, bound_idx] = this.id.split(":").map(Number);
                     cur_idx++;
@@ -1511,42 +1533,42 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
                     }
                     let new_row = df_table.insertRow(this.parentNode["rowIndex"] + 1);
                     cell = new_row.insertCell(0);
-                    Private.read_row(new_row, content, columns, cur_idx);
+                    Private.read_row(new_row, content, columns, cur_idx, this.title.includes("removed rows"));
                     this.id = `${cur_idx}:${bound_idx}`;
                 });
             }
         }
-        else {
-            // draw first 5 rows
-            let initlen = Math.min(7, maxlen);
-            // first row
-            row = df_table.tFoot.insertRow();
-            // add button
-            cell = row.insertCell(0);
-            cell.id = String(initlen - 1) + ":" + String(maxlen);
-            cell.appendChild(Private.createSmallButton("fas fa-search-plus", String(maxlen - 2)));
-            Private.read_row(row, content, columns, 2);
-            cell.title = `click to show more examples`;
-            cell.addEventListener("click", function () {
-                let [cur_idx, bound_idx] = this.id.split(":").map(Number);
-                cur_idx++;
-                if (cur_idx >= bound_idx) {
-                    return;
-                }
-                let new_row = df_table.insertRow(4);
-                cell = new_row.insertCell(0);
-                // cell.innerHTML = String(cur_idx - 2);
-                Private.read_row(new_row, content, columns, cur_idx);
-                this.id = `${cur_idx}:${bound_idx}`;
-            });
-            // next 4 rows
-            for (let i = 3; i < initlen; i++) {
-                row = df_table.tFoot.insertRow();
-                cell = row.insertCell(0);
-                // cell.innerHTML = String(i - 2);
-                Private.read_row(row, content, columns, i);
-            }
-        }
+        // else {
+        //     // draw first 5 rows
+        //     let initlen = Math.min(7, maxlen);
+        //     // first row
+        //     row = df_table.tFoot.insertRow();
+        //     // add button
+        //     cell = row.insertCell(0);
+        //     cell.id = String(initlen - 1) + ":" + String(maxlen);
+        //     cell.appendChild(Private.createSmallButton("fas fa-search-plus", String(maxlen -  2)));
+        //     Private.read_row(row, content, columns, 2);
+        //     cell.title = `click to show more examples`;
+        //     cell.addEventListener("click", function(this) {
+        //         let [cur_idx, bound_idx] = this.id.split(":").map(Number);
+        //         cur_idx++;
+        //         if (cur_idx >= bound_idx) {
+        //             return
+        //         }
+        //         let new_row = df_table.insertRow(4);
+        //         cell = new_row.insertCell(0);
+        //         // cell.innerHTML = String(cur_idx - 2);
+        //         Private.read_row(new_row, content, columns, cur_idx);
+        //         this.id = `${cur_idx}:${bound_idx}`;
+        //     }); 
+        //     // next 4 rows
+        //     for (let i = 3; i < initlen; i++) {
+        //         row = df_table.tFoot.insertRow();
+        //         cell = row.insertCell(0);
+        //         // cell.innerHTML = String(i - 2);
+        //         Private.read_row(row, content, columns, i);
+        //     }
+        // }
         return df_table;
     }
     processItem(item, table) {
@@ -1572,7 +1594,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
 }
 var Private;
 (function (Private) {
-    function read_row(row, content, columns, idx) {
+    function read_row(row, content, columns, idx, deleted) {
         let cell;
         for (let [j, col] of columns.entries()) {
             cell = row.insertCell(j + 1);
@@ -1580,7 +1602,7 @@ var Private;
                 cell.innerHTML = escapeHTML(content[col][idx]);
             else
                 cell.innerHTML = escapeHTML(JSON.stringify(content[col][idx]));
-            if (col.endsWith("-[auto]")) {
+            if (col.endsWith("-[auto]") || deleted) {
                 cell.innerHTML = `<s>${cell.innerHTML}</s>`;
                 cell.addEventListener("click", function () {
                     if (this.innerHTML.startsWith('<s>')) {
@@ -1660,13 +1682,14 @@ var Private;
         return button;
     }
     Private.createSmallButton = createSmallButton;
-    function createText(text, color = "") {
+    function createText(text) {
         let ele = document.createElement("p");
-        if (color == "")
-            ele.style.cssText = `font-family:'verdana'`;
-        else
-            ele.style.cssText = `font-family:'verdana';color:${color};`;
-        ele.innerHTML = "\t" + text;
+        ele.className = "plain-text";
+        // if (color == "")
+        //     ele.style.cssText = `font-family:'verdana'`;
+        // else
+        //     ele.style.cssText = `font-family:'verdana';color:${color};`;
+        ele.innerHTML = text;
         // ele.appendChild(document.createElement("br"))
         return ele;
     }
@@ -1677,4 +1700,4 @@ var Private;
 /***/ })
 
 }]);
-//# sourceMappingURL=lib_index_js.da6fd8983c743cc0a815.js.map
+//# sourceMappingURL=lib_index_js.cea54e4aadd85ef4e55d.js.map

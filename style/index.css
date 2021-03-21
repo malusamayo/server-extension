@@ -86,15 +86,19 @@
   .tomato-text {
     color: tomato;
     cursor: pointer;
+    font-size: 16px;
   }
 
   .plain-text {
     font-family:'verdana';
+    font-size: 16px;
   }
 
   .padded-text {
+    font-family:'verdana';
     padding-left:5em;
     box-decoration-break: clone;
+    font-size: 16px;
   }
 
   .box {
@@ -104,4 +108,9 @@
     border: 5px double; 
     padding: 10px 10px 10px 10px;
     overflow-x: scroll;
+  }
+
+  .padded-div {
+    padding-left: 5em;
+    text-indent: -5em;
   }
