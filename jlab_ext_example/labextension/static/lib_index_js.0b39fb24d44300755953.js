@@ -450,7 +450,7 @@ class ClassicButton {
                         method: 'POST'
                     });
                     console.log(reply);
-                    alert("AutoDoc has been run successfully in the backend!");
+                    alert(reply["msg"]);
                 }
                 catch (reason) {
                     console.error(`Error on POST /jlab-ext-example/hello ${dataToSend}.\n${reason}`);
@@ -1700,4 +1700,4 @@ var Private;
 /***/ })
 
 }]);
-//# sourceMappingURL=lib_index_js.cea54e4aadd85ef4e55d.js.map
+//# sourceMappingURL=lib_index_js.0b39fb24d44300755953.js.map

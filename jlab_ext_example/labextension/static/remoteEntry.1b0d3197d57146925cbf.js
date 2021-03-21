@@ -72,7 +72,7 @@ var _JUPYTERLAB;
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames based on template
-/******/ 			return "" + chunkId + "." + {"webpack_sharing_consume_default_lumino_signaling-webpack_sharing_consume_default_lumino_widgets":"827d0ae863b121b9c33d","lib_index_js":"cea54e4aadd85ef4e55d","vendors-node_modules_css-loader_dist_runtime_api_js-node_modules_css-loader_dist_runtime_cssW-926fd9":"4ee82f5a22fbe2b7612b","style_index_css":"5e41cfacfb0a89b01968","vendors-node_modules_lumino_datagrid_lib_index_js":"c861e97df27eced0f79b","webpack_sharing_consume_default_lumino_algorithm-webpack_sharing_consume_default_lumino_domut-6298d0":"8d1f69aa6e740edbd01f"}[chunkId] + ".js";
+/******/ 			return "" + chunkId + "." + {"webpack_sharing_consume_default_lumino_signaling-webpack_sharing_consume_default_lumino_widgets":"827d0ae863b121b9c33d","lib_index_js":"0b39fb24d44300755953","vendors-node_modules_css-loader_dist_runtime_api_js-node_modules_css-loader_dist_runtime_cssW-926fd9":"4ee82f5a22fbe2b7612b","style_index_css":"5e41cfacfb0a89b01968","vendors-node_modules_lumino_datagrid_lib_index_js":"c861e97df27eced0f79b","webpack_sharing_consume_default_lumino_algorithm-webpack_sharing_consume_default_lumino_domut-6298d0":"8d1f69aa6e740edbd01f"}[chunkId] + ".js";
 /******/ 		};
 /******/ 	})();
 /******/ 	
@@ -559,4 +559,4 @@ __webpack_require__.d(exports, {
 (_JUPYTERLAB = typeof _JUPYTERLAB === "undefined" ? {} : _JUPYTERLAB)["@jupyterlab-examples/server-extension"] = __webpack_exports__;
 /******/ })()
 ;
-//# sourceMappingURL=remoteEntry.17d07c295cb14c351d91.js.map
+//# sourceMappingURL=remoteEntry.1b0d3197d57146925cbf.js.map

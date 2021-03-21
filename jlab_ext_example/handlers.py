@@ -1,5 +1,6 @@
 import os
 import json
+import re
 
 from notebook.base.handlers import APIHandler
 from notebook.utils import url_path_join
@@ -28,8 +29,20 @@ class RouteHandler(APIHandler):
                 command = ""
                 try:
                     command = "python run.py ./" + input_data['path']
-                    os.system(command)
-                    data["msg"] = "successfully run AutoDoc"
+                    ret_code = os.system(command)
+                    if ret_code < 0:
+                        if ret_code == -1:
+                            data["msg"] = "Oops! Error when executing the notebook."
+                        elif ret_code == -2:
+                            data["msg"] = "Oops! Error with static analysis."
+                        elif ret_code == -3:
+                            data["msg"] = "Oops! Error with dynamic analysis."
+                        elif ret_code == -4:
+                            data["msg"] = "Oops! Error with synthesis."
+                        elif ret_code == -5:
+                            data["msg"] = "Oops! Error with notebook conversion."
+                    else:
+                        data["msg"] = "Successfully run AutoDoc!"
                 except:
                     data["msg"] = "error when executing: " + command
         elif input_data["command"] == "fetch":
