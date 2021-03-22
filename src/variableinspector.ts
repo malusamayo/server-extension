@@ -257,6 +257,7 @@ export
         // let notes = document.createElement( "p" );
         // notes.innerHTML = highlightHTML("click button to see details; click one example to show more");
         this.node.appendChild( summary_title as HTMLElement );
+        summary_title.appendChild(document.createElement("br"));
         // summary_title.appendChild( summary_table as HTMLElement );
         // summary_title.appendChild( notes as HTMLElement);
 
@@ -264,7 +265,21 @@ export
         if (Object.keys(data.summary).length > 0) {
             for (let flow in data.summary) {
                 let flow_title = Private.createTitle(flow);
-                flow_title.className = "box";                
+                flow_title.className = "box";
+                
+                // let button = Private.createButton(flow);                
+                // button.onclick = (ev: MouseEvent): any => {
+                //     if (Object.keys(data).length <= 0) 
+                //         return;
+                //     if (summary_title.contains(flow_title)){                   
+                //         summary_title.removeChild(flow_title as HTMLElement);                
+                //         button.innerHTML = button.innerHTML.replace("fa-caret-down", "fa-caret-right");
+                //     } else { 
+                //         summary_title.appendChild(flow_title as HTMLElement);
+                //         button.innerHTML = button.innerHTML.replace("fa-caret-right", "fa-caret-down");
+                //     }
+                // };
+                // summary_title.appendChild(button);
                 
                 // generate summary
                 summary_title.appendChild( flow_title as HTMLElement );
@@ -385,8 +400,8 @@ export
                 }
                 if ("rearrange" in pattern) {
                     let cols = pattern.rearrange.split('|');
-                    ele.innerHTML = "rearranged";
-                    sum_words = "columns [" + cols[0] + "] are " + ele.outerHTML + " to [" + cols[1] + "]\n";
+                    ele.innerHTML = "rearrange columns";
+                    sum_words = ele.outerHTML + ": [" + cols[0] + "] to [" + cols[1] + "]\n";
                 }
                 if ("copy" in pattern) {
                     ele.innerHTML = "copy dataframe";
@@ -424,7 +439,7 @@ export
         "strip": {"0": "value unchanged", "1": "values changed"},
         "upper": {"0": "value unchanged", "1": "value changed"},
         "lower": {"0": "value unchanged", "1": "value changed"},
-        "lambda_if": {"0": "take False branch", "1": "take True branch"},
+        "if_expr": {"0": "take False branch", "1": "take True branch"},
         "empty": {"0": "default cluster"},
         "removed": {"0": "removed rows"}
     };
@@ -434,8 +449,7 @@ export
         ret = "Cluster No." + String(num) + "\n";
         ret += "Size: " + String(size) + "\n";
         ret += "Paths:\n";
-        let items = path.split("(").filter(x => x).map(
-            x => x.replace(/[')]/g, '').split(',').map(x => x.trim()).filter(x => x));
+        let items = JSON.parse(path.replace(/'/g, '"'));
         for (let i of items) {
             let f_name = i[i.length - 1];
             ret += "\t" + f_name.replace("default_", "") + ": ";
@@ -710,10 +724,10 @@ namespace Private {
     }
 
     export 
-        function createButton(text="") {
+        function createButton(text="", icon="fa fa-caret-right") {
         let button = document.createElement("button");
         button.className = "btn";
-        button.innerHTML = `<i class="fa fa-caret-right"></i> ` + text;
+        button.innerHTML = `<i class="${icon}"></i> ` + text;
         return button;
     }
 
