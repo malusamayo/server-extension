@@ -1,6 +1,7 @@
 import os, subprocess
 import json
 import re
+from pathlib import Path
 
 from notebook.base.handlers import APIHandler
 from notebook.utils import url_path_join
@@ -8,7 +9,9 @@ from notebook.utils import url_path_join
 import tornado
 from tornado.web import StaticFileHandler
 
-script_path = "C:\\Users\\77338\\Documents\\GitHub\\notebooks-analysis"
+parts = list(Path(__file__).resolve().parent.parent.parent.parts)
+parts += (["notebooks-analysis"])
+script_path = Path(*parts)
 
 class RouteHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post,
@@ -30,7 +33,7 @@ class RouteHandler(APIHandler):
                 command = ""
                 try:
                     abs_data_path = os.path.abspath(input_data['path'])
-                    print(abs_data_path)
+                    print(script_path, abs_data_path)
                     os.chdir(script_path)
                     command = " ".join(["python", "run.py", abs_data_path])
                     ret_code = os.system(command)
