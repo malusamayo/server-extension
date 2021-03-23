@@ -440,6 +440,7 @@ export
         "upper": {"0": "value unchanged", "1": "value changed"},
         "lower": {"0": "value unchanged", "1": "value changed"},
         "if_expr": {"0": "take False branch", "1": "take True branch"},
+        "loc/at": {"0": "value unchanged", "1": "value replaced"},
         "empty": {"0": "default cluster"},
         "removed": {"0": "removed rows"}
     };

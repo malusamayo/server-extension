@@ -1151,7 +1151,8 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
             "strip": { "0": "value unchanged", "1": "values changed" },
             "upper": { "0": "value unchanged", "1": "value changed" },
             "lower": { "0": "value unchanged", "1": "value changed" },
-            "lambda_if": { "0": "take False branch", "1": "take True branch" },
+            "if_expr": { "0": "take False branch", "1": "take True branch" },
+            "loc/at": { "0": "value unchanged", "1": "value replaced" },
             "empty": { "0": "default cluster" },
             "removed": { "0": "removed rows" }
         };
@@ -1264,12 +1265,26 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
         // let notes = document.createElement( "p" );
         // notes.innerHTML = highlightHTML("click button to see details; click one example to show more");
         this.node.appendChild(summary_title);
+        summary_title.appendChild(document.createElement("br"));
         // summary_title.appendChild( summary_table as HTMLElement );
         // summary_title.appendChild( notes as HTMLElement);
         if (Object.keys(data.summary).length > 0) {
             for (let flow in data.summary) {
                 let flow_title = Private.createTitle(flow);
                 flow_title.className = "box";
+                // let button = Private.createButton(flow);                
+                // button.onclick = (ev: MouseEvent): any => {
+                //     if (Object.keys(data).length <= 0) 
+                //         return;
+                //     if (summary_title.contains(flow_title)){                   
+                //         summary_title.removeChild(flow_title as HTMLElement);                
+                //         button.innerHTML = button.innerHTML.replace("fa-caret-down", "fa-caret-right");
+                //     } else { 
+                //         summary_title.appendChild(flow_title as HTMLElement);
+                //         button.innerHTML = button.innerHTML.replace("fa-caret-right", "fa-caret-down");
+                //     }
+                // };
+                // summary_title.appendChild(button);
                 // generate summary
                 summary_title.appendChild(flow_title);
                 summary_title.appendChild(document.createElement("br"));
@@ -1416,7 +1431,7 @@ class VariableInspectorPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_1_
         ret = "Cluster No." + String(num) + "\n";
         ret += "Size: " + String(size) + "\n";
         ret += "Paths:\n";
-        let items = path.split("(").filter(x => x).map(x => x.replace(/[')]/g, '').split(',').map(x => x.trim()).filter(x => x));
+        let items = JSON.parse(path.replace(/'/g, '"'));
         for (let i of items) {
             let f_name = i[i.length - 1];
             ret += "\t" + f_name.replace("default_", "") + ": ";
@@ -1668,10 +1683,10 @@ var Private;
         return title;
     }
     Private.createTitle = createTitle;
-    function createButton(text = "") {
+    function createButton(text = "", icon = "fa fa-caret-right") {
         let button = document.createElement("button");
         button.className = "btn";
-        button.innerHTML = `<i class="fa fa-caret-right"></i> ` + text;
+        button.innerHTML = `<i class="${icon}"></i> ` + text;
         return button;
     }
     Private.createButton = createButton;
@@ -1700,4 +1715,4 @@ var Private;
 /***/ })
 
 }]);
-//# sourceMappingURL=lib_index_js.7afe8257c280f2bfb07f.js.map
+//# sourceMappingURL=lib_index_js.4f5324539f32981969ee.js.map
