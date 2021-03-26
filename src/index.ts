@@ -10,15 +10,10 @@ import {
   , WidgetTracker 
 } from '@jupyterlab/apputils';
 
-import { PageConfig } from '@jupyterlab/coreutils';
-
 import { ILauncher } from '@jupyterlab/launcher';
 
 import {IDocumentManager} from "@jupyterlab/docmanager"
 
-// import {
-//   IConsoleTracker
-// } from '@jupyterlab/console';
 
 import {
   INotebookTracker, NotebookPanel, INotebookModel
@@ -29,33 +24,21 @@ import { DocumentRegistry } from '@jupyterlab/docregistry';
 
 import { extensionIcon } from '@jupyterlab/ui-components';
 
-import {
-  IFileBrowserFactory
-} from '@jupyterlab/filebrowser';
 
 import { CommandRegistry } from '@lumino/commands';
 
 import { IDisposable } from '@lumino/disposable';
 
 import {
-  IVariableInspector, VariableInspectorPanel
+  VariableInspectorPanel
 } from "./variableinspector";
 
 import {
   VariableInspectorManager, IVariableInspectorManager
 } from "./manager";
 
-import { VariableInspectionHandler, requestAPI } from './handler';
+import { requestAPI } from './handler';
 
-import {
-    KernelConnector
-} from "./kernelconnector";
-
-import {
-    Languages
-} from "./inspectorscripts";
-
-// import { ModelCardPanel } from './panel';
 
 /**
  * The command IDs used by the server extension plugin.
@@ -65,6 +48,8 @@ namespace CommandIDs {
   export const openClassic = 'jupyterlab-classic:open';
   export const open = "autodoc-panel:open";
 }
+
+let inspector_panel: VariableInspectorPanel;
 
 /**
  * A service providing variable introspection.
@@ -90,6 +75,7 @@ const variableinspector: JupyterFrontEndPlugin<IVariableInspectorManager> = {
          */
         function newPanel(): VariableInspectorPanel {
             const panel = new VariableInspectorPanel();
+            inspector_panel = panel;
             
             panel.id = "jp-autodoc-panel";
             panel.title.label = "Autodoc Panel";
@@ -122,9 +108,6 @@ const variableinspector: JupyterFrontEndPlugin<IVariableInspectorManager> = {
                 }
                 if ( !manager.panel.isAttached ) {
                     labShell.add( manager.panel, 'main' );
-                }
-                if ( manager.source ) {
-                    manager.source.performInspection();
                 }
                 labShell.activateById( manager.panel.id );
             }
@@ -212,67 +195,7 @@ const notebooks: JupyterFrontEndPlugin<void> = {
   id: "jupyterlab-extension:autodoc-panel:notebooks",
   requires: [IVariableInspectorManager, INotebookTracker , ILabShell],
   autoStart: true,
-  activate: (app: JupyterFrontEnd, manager: VariableInspectorManager, notebooks: INotebookTracker, labShell: ILabShell ): void => {
-    const handlers: { [id: string]: Promise<VariableInspectionHandler> } = {};
-            
-       /**
-         * Subscribes to the creation of new notebooks. If a new notebook is created, build a new handler for the notebook.
-         * Adds a promise for a instanced handler to the 'handlers' collection.
-         */
-        notebooks.widgetAdded.connect(( sender, nbPanel: NotebookPanel ) => {
-            
-            //A promise that resolves after the initialization of the handler is done.
-            handlers[nbPanel.id] = new Promise( function( resolve, reject ) {
-                
-                const session = nbPanel.sessionContext;
-                const connector = new KernelConnector( { session } );
-                const rendermime = nbPanel.content.rendermime;
-                
-                let scripts: Promise<Languages.LanguageModel>;
-                    scripts = connector.ready.then(() => {
-                        return connector.kernelLanguage.then(lang => {
-                            return Languages.getScript(lang);
-                        });
-                    });
-                
-                scripts.then(( result: Languages.LanguageModel ) => {
-                    let initScript = result.initScript;
-                    let queryCommand = result.queryCommand;
-                    let matrixQueryCommand = result.matrixQueryCommand;
-                    let widgetQueryCommand = result.widgetQueryCommand;
-                    let deleteCommand = result.deleteCommand;
-                    
-                    const options: VariableInspectionHandler.IOptions = {
-                            queryCommand: queryCommand,
-                            matrixQueryCommand: matrixQueryCommand,
-                            widgetQueryCommand,
-                            deleteCommand: deleteCommand,
-                            connector: connector,
-                            rendermime,
-                            initScript: initScript,
-                            id: session.path  //Using the sessions path as an identifier for now.
-                    };
-                    const handler = new VariableInspectionHandler( options );
-                    manager.addHandler(handler);
-                    nbPanel.disposed.connect(() => {
-                        delete handlers[nbPanel.id];
-                        handler.dispose();
-                    } );
-                    
-                    handler.ready.then(() => {
-                        resolve( handler );
-                    } );
-                } );
-                
-                
-                //Otherwise log error message.
-                scripts.catch(( result: string ) => {
-                    reject( result );
-                } );
-                } );
-        } );
-            
-
+  activate: (app: JupyterFrontEnd, manager: VariableInspectorManager, notebooks: INotebookTracker, labShell: ILabShell ): void => {           
       // current cell change
       notebooks.activeCellChanged.connect(async ( sender, args ) => {
             // console.log(notebooks.currentWidget.content.activeCellIndex);
@@ -286,14 +209,8 @@ const notebooks: JupyterFrontEndPlugin<void> = {
                 method: 'POST'
             });
                 // console.log(reply);
-                let future = handlers[notebooks.currentWidget.id];
-                future.then((source :VariableInspectionHandler ) => {
-                    if ( source ) {
-                        manager.source = source;
-                        console.log("start inspecting...")
-                        manager.source.performInspection(reply);               
-                    }
-                });
+                console.log("start inspecting...");
+                inspector_panel.onInspectorUpdate({}, {"title": {"reply": reply}, "payload": []});
             } catch (reason) {
                 console.error(
                 `Error on POST /jlab-ext-example/hello ${dataToSend}.\n${reason}`

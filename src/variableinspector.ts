@@ -1,16 +1,6 @@
-// import {
-//     OutputAreaModel,
-//     SimplifiedOutputArea
-// } from '@jupyterlab/outputarea';
-
 import {
     IRenderMimeRegistry
 } from '@jupyterlab/rendermime';
-
-import {
-    Kernel, 
-    KernelMessage 
-} from '@jupyterlab/services';
 
 import {
     ISignal
@@ -24,12 +14,6 @@ import {
     //  DockLayout, 
      Widget,
 } from '@lumino/widgets';
-
-import {
-    // DataGrid, 
-    DataModel
-} from "@lumino/datagrid";
-
 
 const TITLE_CLASS = "jp-VarInspector-title";
 const PANEL_CLASS = "jp-VarInspector";
@@ -62,10 +46,6 @@ namespace IVariableInspector {
         disposed: ISignal<any, void>;
         inspected: ISignal<any, IVariableInspectorUpdate>;
         rendermime: IRenderMimeRegistry;
-        performInspection(reply?: any): void;
-        performMatrixInspection( varName: string, maxRows? : number ): Promise<DataModel>;
-        performWidgetInspection( varName: string ): Kernel.IShellFuture<KernelMessage.IExecuteRequestMsg, KernelMessage.IExecuteReplyMsg>;
-        performDelete( varName: string ): void;
     }
 
     export
@@ -160,18 +140,6 @@ export
            // this._source.performInspection();
             return;
         }
-        //Remove old subscriptions
-        if ( this._source ) {
-            this._source.inspected.disconnect( this.onInspectorUpdate, this );
-            this._source.disposed.disconnect( this.onSourceDisposed, this );
-        }
-        this._source = source;
-        //Subscribe to new object
-        if ( this._source ) {
-            this._source.inspected.connect( this.onInspectorUpdate, this );
-            this._source.disposed.connect( this.onSourceDisposed, this );
-            this._source.performInspection();
-        }
     }
 
     /**
@@ -210,13 +178,7 @@ export
         };
     }
 
-    protected onInspectorUpdate( sender: any, allArgs: IVariableInspector.IVariableInspectorUpdate): void {
-        if (!this.isAttached) {
-            return;
-        }
-        if (!("reply" in allArgs.title) || allArgs.title.reply == undefined) {
-            return
-        }
+    public onInspectorUpdate( sender: any, allArgs: IVariableInspector.IVariableInspectorUpdate): void {
         console.log(allArgs.title.reply);
         let data = allArgs.title.reply;
 
@@ -252,14 +214,9 @@ export
 
         this.add_button(this.buttons.get("INPUTS"), _input_title, data.input);
         this.add_button(this.buttons.get("OUTPUTS"), _output_title, data.output);
-        // this.add_button(this.buttons.get("TRANSFORMS"), transform_title, data.summary);
 
-        // let notes = document.createElement( "p" );
-        // notes.innerHTML = highlightHTML("click button to see details; click one example to show more");
         this.node.appendChild( summary_title as HTMLElement );
         summary_title.appendChild(document.createElement("br"));
-        // summary_title.appendChild( summary_table as HTMLElement );
-        // summary_title.appendChild( notes as HTMLElement);
 
 
         if (Object.keys(data.summary).length > 0) {
@@ -315,33 +272,6 @@ export
         }
 
 
-        // Object.entries(example).forEach(cell => {
-        //     if(Number(cell[0]) != idx)
-        //         return;
-            
-            // if (Object.keys(cell[1].function).length > 0) {
-            //     Object.entries(cell[1].function).forEach(func => this.buildFunctionTable(func[0], func[1], this.function_tables));
-            //     this.function_tables.forEach(x => function_title.appendChild(x));
-            // }
-             
-            // integrate comments
-            // if (Object.keys(cell[1].comment).length > 0) {
-            //     let comment_table = Private.createTable(["loc", "comment"]);
-            //     comment_table.className = TABLE_CLASS;
-            //     comment_table.createTFoot();
-            //     comment_table.tFoot.className = TABLE_BODY_CLASS;
-            //     Object.entries(cell[1].comment).forEach(item => {
-            //         let row = comment_table.tFoot.insertRow();
-            //         let cell = row.insertCell(0);
-            //         cell.innerHTML = item[0];
-            //         cell = row.insertCell(1);
-            //         cell.innerHTML = item[1];
-            //     });
-            //     let comment_title = this.titles.get("COMMENTS");
-            //     // this.node.appendChild( comment_title as HTMLElement );
-            //     comment_title.appendChild( comment_table as HTMLElement );
-            // }   
-        // })
     }
 
     protected draw_inner_summary(patterns:any, prefix: string, col_names: string[], flow_title:HTMLElement) {
@@ -578,41 +508,6 @@ export
                 });
             }
         } 
-        // else {
-        //     // draw first 5 rows
-        //     let initlen = Math.min(7, maxlen);
-
-        //     // first row
-        //     row = df_table.tFoot.insertRow();
-        //     // add button
-        //     cell = row.insertCell(0);
-        //     cell.id = String(initlen - 1) + ":" + String(maxlen);
-        //     cell.appendChild(Private.createSmallButton("fas fa-search-plus", String(maxlen -  2)));
-        //     Private.read_row(row, content, columns, 2);
-        //     cell.title = `click to show more examples`;
-        //     cell.addEventListener("click", function(this) {
-        //         let [cur_idx, bound_idx] = this.id.split(":").map(Number);
-        //         cur_idx++;
-        //         if (cur_idx >= bound_idx) {
-        //             return
-        //         }
-        //         let new_row = df_table.insertRow(4);
-        //         cell = new_row.insertCell(0);
-        //         // cell.innerHTML = String(cur_idx - 2);
-        //         Private.read_row(new_row, content, columns, cur_idx);
-                
-        //         this.id = `${cur_idx}:${bound_idx}`;
-        //     }); 
-
-        //     // next 4 rows
-        //     for (let i = 3; i < initlen; i++) {
-        //         row = df_table.tFoot.insertRow();
-        //         cell = row.insertCell(0);
-        //         // cell.innerHTML = String(i - 2);
-        //         Private.read_row(row, content, columns, i);
-        //     }
-
-        // }
 
         return df_table;
     }
