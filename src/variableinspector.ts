@@ -92,20 +92,34 @@ export
     private TITLES: Array<string>;
     private buttons: Map<String, HTMLButtonElement>;
     private HINTS = {
-                "str": "convert column to str type",
-                "category": "convert column to category type",
-                "int": "convert column to int type",
-                "encode": "encode column in consecutive integers",
-                "one_hot_encoding": "encode column in binary (0/1) integers",
-                "float": "convert column to float type",
-                "type_convert": "convert column type",
-                "fillna": "fill null values (e.g., nan->0)",
-                "merge": "merge items to reduce column's cardinality (e.g., Monday->1 & Mon->1)",
-                "num_transform": "manipulate numerical columns with unspecified transformation",
-                "str_transform": "manipulate string columns with unspecified transformation",
-                "substr": "take substring from column",
-                "compute": "manipulate column with unspecified transformation"
-            };
+        "str": "convert column to str type",
+        "category": "convert column to category type",
+        "int": "convert column to int type",
+        "encode": 
+        `encode column in consecutive integers
+        e.g., [x, y, z, y, x] -> [0, 1, 2, 1, 0]`,
+        "one_hot_encoding": 
+        `encode column in binary (0/1) integers
+        e.g., [x, y, z, y, x] -> col_x [1, 0, 0, 0, 1]
+              [x, y, z, y, x] -> col_x [0, 1, 0, 1, 0]
+              [x, y, z, y, x] -> col_x [0, 0, 1, 0, 0]`,
+        "float": "convert column to float type",
+        "type_convert": "convert column type",
+        "fillna": 
+        `fill null/nan values
+        e.g., [3, 4, nan, 2, nan] -> [3, 4, 0, 2, 0]`,
+        "merge": 
+        `merge different items
+        e.g., [Mon, Monday, Thursday, Thur] -> [Mon, Mon, Thu, Thu] `,
+        "num_transform": 
+        `unspecified numerical transformation
+        e.g., [2, 3, 4] -> [20, 30, 40]`,
+        "str_transform": 
+        `unspecified string transformation
+        e.g., [S1, D2, C3, K1] -> [S, D, C, K]`,
+        "substr": "take substring from column",
+        "compute": "unspecified transformation"
+    };
 
     constructor() {
         super();
