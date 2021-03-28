@@ -35,7 +35,7 @@ class RouteHandler(APIHandler):
                     abs_data_path = os.path.abspath(input_data['path'])
                     print(script_path, abs_data_path)
                     os.chdir(script_path)
-                    command = " ".join(["python", "run.py", abs_data_path, "-i"])
+                    command = " ".join(["python", "run.py", abs_data_path, "-s"])
                     ret_code = os.system(command)
                     os.chdir(cwd)
                     print(ret_code)
