@@ -465,7 +465,7 @@ export
         df_table.tFoot.className = TABLE_BODY_CLASS;
         let maxlen = Object.keys(content[columns[0]]).length;
 
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 3; i++) {
             row = df_table.tFoot.insertRow();
             row.style.backgroundColor = "lightgray";
             cell = row.insertCell(0);
@@ -474,8 +474,12 @@ export
                 cell.title = "object: usually refers to str type";
                 cell.style.cursor = "pointer";
             } else if (i == 1) {
+                cell.innerHTML = "unique";
+                cell.title = "unique values of the column";
+                cell.style.cursor = "pointer";
+            } else if (i == 2) {
                 cell.innerHTML = "range";
-                cell.title = "For object type, N = num of distinct values;\nFor number type: [A, B] = [min, max]";
+                cell.title = "For number type: [A, B] = [min, max]";
                 cell.style.cursor = "pointer";
             }
             Private.read_row(row, content, columns, i);
@@ -495,7 +499,7 @@ export
             let bounds = [];
             for (let path in markers) {
                 paths.push(path);
-                bounds.push(markers[path]+2);
+                bounds.push(markers[path]+3);
             }
             bounds.push(maxlen);
             for (let i = 0; i < paths.length; i++) {
