@@ -101,8 +101,8 @@ export
         "one_hot_encoding": 
         `encode column in binary (0/1) integers
         e.g., [x, y, z, y, x] -> col_x [1, 0, 0, 0, 1]
-              [x, y, z, y, x] -> col_x [0, 1, 0, 1, 0]
-              [x, y, z, y, x] -> col_x [0, 0, 1, 0, 0]`,
+              [x, y, z, y, x] -> col_y [0, 1, 0, 1, 0]
+              [x, y, z, y, x] -> col_z [0, 0, 1, 0, 0]`,
         "float": "convert column to float type",
         "type_convert": "convert column type",
         "fillna": 
@@ -438,7 +438,7 @@ export
                                 ret += "value set to " + i[0];
                             break;
                         }
-                        let exec = i.slice(0,-1).map(Number);
+                        let exec = i[0].map(Number);
                         let min = Math.min(...exec);
                         exec = exec.map(x => x - min);
                         ret += "path: " + String(exec);
