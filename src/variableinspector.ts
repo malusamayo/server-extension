@@ -294,7 +294,7 @@ export
         let ele = document.createElement("b");
         ele.className = "tomato-text";
         ele.innerHTML = prefix + " columns"
-        sum_words = ele.outerHTML + ": [" + col_names.map(x => x.split('|')[1]) + "]";
+        sum_words = ele.outerHTML + ": [" + [... new Set(col_names.map(x => x.split('|')[1]))] + "]";
         sum_ele = Private.createText(sum_words);
         flow_title.appendChild( sum_ele );
         for (const col_str of col_names) {
