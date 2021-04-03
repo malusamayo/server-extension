@@ -348,7 +348,7 @@ export
                     sum_words = ele.outerHTML + ": [" + cols[0] + "] to [" + cols[1] + "]\n";
                 }
                 if ("copy" in pattern) {
-                    ele.innerHTML = "copy dataframe";
+                    ele.innerHTML = "copy (no change)";
                     sum_words = ele.outerHTML;
                 }
                 let sum_ele = Private.createText(sum_words);
@@ -569,6 +569,8 @@ namespace Private {
                 cell.innerHTML = escapeHTML(content[col][idx]);
             else
                 cell.innerHTML = escapeHTML(JSON.stringify(content[col][idx]));
+            cell.innerHTML = cell.innerHTML.replace("null", `<span style="color:red;">null</span>`);
+            cell.innerHTML = cell.innerHTML.replace("nan", `<span style="color:red;">nan</span>`);
             if (col.endsWith("-[auto]") || deleted) {
                 cell.innerHTML = `<s>${cell.innerHTML}</s>`;
                 cell.addEventListener("click", function(this) {
