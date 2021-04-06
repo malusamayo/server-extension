@@ -15,6 +15,9 @@ import {
      Widget,
 } from '@lumino/widgets';
 
+declare function require(name:string);
+let JSON5 = require('json5');
+
 const TITLE_CLASS = "jp-VarInspector-title";
 const PANEL_CLASS = "jp-VarInspector";
 const TABLE_CLASS = "jp-VarInspector-table";
@@ -347,6 +350,11 @@ export
                     ele.innerHTML = "rearrange columns";
                     sum_words = ele.outerHTML + ": [" + cols[0] + "] to [" + cols[1] + "]\n";
                 }
+                if ("rearrange_row" in pattern) {
+                    let cols = pattern.rearrange.split('|');
+                    ele.innerHTML = "rearrange rows";
+                    sum_words = ele.outerHTML;
+                  }
                 if ("copy" in pattern) {
                     ele.innerHTML = "copy (no change)";
                     sum_words = ele.outerHTML;
@@ -394,7 +402,7 @@ export
         ret = "Cluster No." + String(num) + "\n";
         ret += "Size: " + String(size) + "\n";
         ret += "Paths:\n";
-        let items = JSON.parse(path.replace(/'/g, '"'));
+        let items = JSON5.parse(path);
         for (let i of items) {
             let f_name = i[i.length - 1];
             ret += "\t" + f_name.replace("default_", "") + ": ";
