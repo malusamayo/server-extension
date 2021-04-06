@@ -351,7 +351,6 @@ export
                     sum_words = ele.outerHTML + ": [" + cols[0] + "] to [" + cols[1] + "]\n";
                 }
                 if ("rearrange_row" in pattern) {
-                    let cols = pattern.rearrange.split('|');
                     ele.innerHTML = "rearrange rows";
                     sum_words = ele.outerHTML;
                   }
