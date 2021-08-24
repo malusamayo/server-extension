@@ -1,4 +1,4 @@
-# Server Extension for AutoDoc
+# Server Extension for WrangleDoc
 
 ## Installing the Package
 
