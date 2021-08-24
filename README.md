@@ -1,8 +1,8 @@
 # Server Extension for WrangleDoc
 
-## Installing the Package
+This is a jupyterlab extension that renders generated documentation from notebook analysis engine.
 
-With the packaging described above, installing the extension is done in one command once the package is published on pypi.org:
+## Installing the Package
 
 ```bash
 # Install the server extension and
